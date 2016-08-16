@@ -758,11 +758,18 @@ control ComputeChecksum<H, M>(inout H hdr,
 control Deparser<H>(packet_out b, in H hdr);
 
 package V1Switch<H, M>(Parser<H, M> p,
+                       Ingress<H, M> ig,
+                       Egress<H, M> eg,
+                       Deparser<H> dep
+                       );
+
+package V1Switch<H, M>(Parser<H, M> p,
                        VerifyChecksum<H, M> vr,
                        Ingress<H, M> ig,
                        Egress<H, M> eg,
                        ComputeChecksum<H, M> ck,
                        Deparser<H> dep
                        );
+
 
 #endif  /* _V1_MODEL_P4_ */

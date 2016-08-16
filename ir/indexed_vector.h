@@ -38,7 +38,7 @@ namespace P4::IR {
  */
 template <class T>
 class IndexedVector : public Vector<T> {
-    string_map<const IDeclaration *> declarations;
+    std::multimap<cstring, const IDeclaration*> declarations;
     bool invalid = false;  // set when an error occurs; then we don't
                            // expect the validity check to succeed.
 
@@ -46,20 +46,23 @@ class IndexedVector : public Vector<T> {
         if (a == nullptr || !a->template is<IDeclaration>()) return;
         auto decl = a->template to<IDeclaration>();
         auto name = decl->getName().name;
-        auto [it, inserted] = declarations.emplace(name, decl);
-        if (!inserted) {
-            invalid = true;
-            ::P4::error(ErrorType::ERR_DUPLICATE, "%1%: Duplicates declaration %2%", a, it->second);
-        }
+        for (auto it = declarations.find(name); it != declarations.end(); ++it)
+            if (it->second == decl)
+                ::error("%1%: Duplicates declaration %2%", a, it->second);
+        declarations.emplace(name, decl);
     }
     void removeFromMap(const T *a) {
         if (a == nullptr) return;
         auto decl = a->template to<IDeclaration>();
         if (decl == nullptr) return;
         cstring name = decl->getName().name;
-        auto it = declarations.find(name);
-        if (it == declarations.end()) BUG("%1% does not exist", a);
-        declarations.erase(it);
+        for (auto it = declarations.find(name); it != declarations.end(); ++it) {
+            if (it->second == decl) {
+                declarations.erase(it);
+                return;
+            }
+        }
+        BUG("%1% does not exist", a);
     }
 
  public:
@@ -113,7 +116,9 @@ class IndexedVector : public Vector<T> {
         return it->second->template to<U>();
     }
     Util::Enumerator<const IDeclaration *> *getDeclarations() const {
-        return Util::enumerate(Values(declarations));
+        return Util::enumerate(Values(declarations))
+            ->template as<const IDeclaration *>()
+            ->where([](const IDeclaration *d) { return d != nullptr; });
     }
     iterator erase(iterator from, iterator to) {
         for (auto it = from; it != to; ++it) {
