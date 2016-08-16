@@ -37,18 +37,17 @@ namespace IR {
  */
 template<class T>
 class IndexedVector : public Vector<T> {
-    ordered_map<cstring, const IDeclaration*> declarations;
+    std::multimap<cstring, const IDeclaration*> declarations;
 
     void insertInMap(const T* a) {
         if (a == nullptr || !a->template is<IDeclaration>())
             return;
         auto decl = a->template to<IDeclaration>();
         auto name = decl->getName().name;
-        auto previous = declarations.find(name);
-        if (previous != declarations.end())
-            ::error("%1%: Duplicates declaration %2%", a, previous->second);
-        else
-            declarations[name] = decl; }
+        for (auto it = declarations.find(name); it != declarations.end(); ++it)
+            if (it->second == decl)
+                ::error("%1%: Duplicates declaration %2%", a, it->second);
+        declarations.emplace(name, decl); }
     void removeFromMap(const T* a) {
         if (a == nullptr)
             return;
@@ -56,10 +55,11 @@ class IndexedVector : public Vector<T> {
         if (decl == nullptr)
             return;
         cstring name = decl->getName().name;
-        auto it = declarations.find(name);
-        if (it == declarations.end())
-            BUG("%1% does not exist", a);
-        declarations.erase(it); }
+        for (auto it = declarations.find(name); it != declarations.end(); ++it) {
+            if (it->second == decl) {
+                declarations.erase(it);
+                return; } }
+        BUG("%1% does not exist", a); }
 
  public:
     using Vector<T>::begin;
@@ -98,8 +98,9 @@ class IndexedVector : public Vector<T> {
             return nullptr;
         return it->second->template to<U>(); }
     Util::Enumerator<const IDeclaration*>* getDeclarations() const {
-        return Util::Enumerator<const IDeclaration*>::createEnumerator(
-            Values(declarations).begin(), Values(declarations).end()); }
+        return Util::Enumerator<const T*>::createEnumerator(begin(), end())
+            ->template as<const IDeclaration *>()
+            ->where([](const IDeclaration *d) { return d != nullptr; }); }
     iterator erase(iterator i) {
         removeFromMap(*i);
         return Vector<T>::erase(i); }
