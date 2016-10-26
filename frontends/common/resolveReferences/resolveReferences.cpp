@@ -123,16 +123,19 @@ void ResolutionContext::done() {
 const IR::IDeclaration*
 ResolutionContext::resolveUnique(IR::ID name,
                                  P4::ResolutionType type,
-                                 bool previousOnly) const {
+                                 bool previousOnly,
+                                 bool emitError) const {
     auto decls = resolve(name, type, previousOnly);
     if (decls->empty()) {
-        ::error("Could not find declaration for %1%", name);
+        if (emitError)
+            ::error("Could not find declaration for %1%", name);
         return nullptr;
     }
     if (decls->size() > 1) {
-        ::error("Multiple matching declarations for %1%", name);
-        for (auto a : *decls)
-            ::error("Candidate: %1%", a);
+        if (emitError) {
+            ::error("Multiple matching declarations for %1%", name);
+            for (auto a : *decls)
+                ::error("Candidate: %1%", a); }
         return nullptr;
     }
     return decls->at(0);
@@ -187,7 +190,7 @@ void ResolveReferences::removeFromContext(const IR::INamespace* ns) {
     context->pop(ns);
 }
 
-void ResolveReferences::resolvePath(const IR::Path* path, bool isType) const {
+void ResolveReferences::resolvePath(const IR::Path* path, bool isType, bool emitError) const {
     LOG1("Resolving " << path << " " << (isType ? "as type" : "as identifier"));
     ResolutionContext* ctx = context;
     if (path->absolute)
@@ -197,7 +200,7 @@ void ResolveReferences::resolvePath(const IR::Path* path, bool isType) const {
     BUG_CHECK(!resolveForward.empty(), "Empty resolveForward");
     bool allowForward = resolveForward.back();
 
-    const IR::IDeclaration* decl = ctx->resolveUnique(path->name, k, !allowForward);
+    const IR::IDeclaration* decl = ctx->resolveUnique(path->name, k, !allowForward, emitError);
     if (decl == nullptr) {
         refMap->usedName(path->name.name);
         return;
@@ -265,10 +268,10 @@ void ResolveReferences::postorder(const IR::P4Program*) {
 }
 
 bool ResolveReferences::preorder(const IR::PathExpression* path) {
-    resolvePath(path->path, false); return true; }
+    resolvePath(path->path, false, !findContext<IR::Annotation>()); return true; }
 
 bool ResolveReferences::preorder(const IR::Type_Name* type) {
-    resolvePath(type->path, true); return true; }
+    resolvePath(type->path, true, !findContext<IR::Annotation>()); return true; }
 
 bool ResolveReferences::preorder(const IR::P4Control *c) {
     refMap->usedName(c->name.name);

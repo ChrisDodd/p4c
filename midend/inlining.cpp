@@ -295,6 +295,10 @@ class Substitutions : public SubstituteParameters {
         LOG1("(Substitutions) replaced " << dbp(getOriginal()) << " with " << dbp(result));
         return result;
     }
+    const IR::Node* preorder(IR::Annotation *annot) override {
+        prune();
+        return annot;
+    }
 };
 }  // namespace
 

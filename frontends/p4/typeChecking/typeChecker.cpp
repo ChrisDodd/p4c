@@ -130,7 +130,7 @@ bool TypeInference::done() const {
 
 const IR::Type* TypeInference::getType(const IR::Node* element) const {
     const IR::Type* result = typeMap->getType(element);
-    if (result == nullptr) {
+    if (!result && !findContext<IR::Annotation>()) {
         if (auto field = element->to<IR::StructField>()) {
             // FIXME -- for some reason, fields aren't in the typeMap?
             return field->type; }
@@ -1756,7 +1756,9 @@ const IR::Node* TypeInference::postorder(IR::Cast* expression) {
 
 const IR::Node* TypeInference::postorder(IR::PathExpression* expression) {
     if (done()) return expression;
-    auto decl = refMap->getDeclaration(expression->path, true)->getNode();
+    auto idecl = refMap->getDeclaration(expression->path, !findContext<IR::Annotation>());
+    if (!idecl) return expression;
+    auto decl = idecl->getNode();
     const IR::Type* type = nullptr;
 
     if (decl->is<IR::ParserState>()) {

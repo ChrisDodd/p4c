@@ -65,7 +65,7 @@ class ResolutionContext : public IHasDbPrint {
 
     // Resolve a reference for the specified name; expect a single result
     const IR::IDeclaration*
-    resolveUnique(IR::ID name, ResolutionType type, bool previousOnly) const;
+    resolveUnique(IR::ID name, ResolutionType type, bool previousOnly, bool emitError) const;
 };
 
 class ResolveReferences : public Inspector {
@@ -82,7 +82,7 @@ class ResolveReferences : public Inspector {
     void addToContext(const IR::INamespace* ns);
     void removeFromContext(const IR::INamespace* ns);
     void addToGlobals(const IR::INamespace* ns);
-    void resolvePath(const IR::Path* path, bool isType) const;
+    void resolvePath(const IR::Path* path, bool isType, bool emitError) const;
 
  public:
     explicit ResolveReferences(/* out */ P4::ReferenceMap* refMap,

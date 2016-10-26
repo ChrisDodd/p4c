@@ -50,4 +50,5 @@ p14_to_16tests.mk: $(GENTESTS) $(srcdir)/%reldir%/Makefile.am \
 
 # This is a bug in the grammar
 XFAIL_TESTS += \
-    p4/testdata/p4_16_samples/cast-call.p4.test
+    p4/testdata/p4_16_samples/cast-call.p4.test \
+    p4/testdata/p4_16_errors/spec-ex32_e.p4.test
