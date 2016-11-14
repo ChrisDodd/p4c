@@ -54,6 +54,7 @@ interface IApply {
 /// base class for namespaces
 interface INamespace {
     virtual Util::Enumerator<IDeclaration> *getDeclarations() const = 0;
+    virtual void addDecl(const IDeclaration *decl) = 0;
 }
 
 /// Does not allow two declarations with the same name

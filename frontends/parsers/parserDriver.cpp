@@ -121,7 +121,6 @@ void AbstractParserDriver::onParseError(const Util::SourceInfo& location,
 
 P4ParserDriver::P4ParserDriver()
   : structure(new Util::ProgramStructure)
-  , nodes(new IR::Vector<IR::Node>())
 { }
 
 bool
@@ -129,6 +128,9 @@ P4ParserDriver::parse(AbstractP4Lexer& lexer, const char* sourceFile,
                       unsigned sourceLine /* = 1 */) {
     // Create and configure the parser.
     P4Parser parser(*this, lexer);
+    auto *rv = new IR::P4Program();
+    current_scope.clear();
+    current_scope.push_front(rv);
 
 #ifdef YYDEBUG
     if (const char *p = getenv("YYDEBUG"))
@@ -140,20 +142,9 @@ P4ParserDriver::parse(AbstractP4Lexer& lexer, const char* sourceFile,
     sources->mapLine(sourceFile, sourceLine);
 
     // Parse.
-    if (parser.parse() != 0) return false;
-    structure->endParse();
-    return true;
-}
-
-/* static */ const IR::P4Program*
-P4ParserDriver::parse(std::istream& in, const char* sourceFile,
-                      unsigned sourceLine /* = 1 */) {
-    LOG1("Parsing P4-16 program " << sourceFile);
-
-    P4ParserDriver driver;
-    P4Lexer lexer(in);
-    if (!driver.parse(lexer, sourceFile, sourceLine)) return nullptr;
-    return new IR::P4Program(driver.nodes->srcInfo, *driver.nodes);
+    if (parser.parse() != 0) return nullptr;
+    driver.structure->endParse();
+    return rv;
 }
 
 /* static */ const IR::P4Program*
@@ -278,7 +269,7 @@ P4ParserDriver::parseStringLiteralTriple(const Util::SourceInfo& srcInfo,
 
 void P4ParserDriver::onReadErrorDeclaration(IR::Type_Error* error) {
     if (allErrors == nullptr) {
-        nodes->push_back(error);
+        current_scope.back()->addDecl(error);
         allErrors = error;
         return;
     }

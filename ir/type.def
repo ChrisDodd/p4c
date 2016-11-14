@@ -130,6 +130,7 @@ class ParameterList : ISimpleNamespace {
         BUG("Only %1% parameters; index #%2% requested", size(), size()+index); }
     IR::IDeclaration getDeclByName(cstring name) const override { return getParameter(name); }
     void push_back(const Parameter *p) { parameters.push_back(p); }
+    void addDecl(const IDeclaration *decl) override { push_back(decl->to<Parameter>()); }
     toString {
         cstring result = "";
         bool first = true;
@@ -200,6 +201,7 @@ class TypeParameters : ISimpleNamespace {
     IR::IDeclaration getDeclByName(cstring name) const override {
         return parameters.getDeclaration(name); }
     void push_back(Type_Var tv) { parameters.push_back(tv); }
+    void addDecl(const IDeclaration *decl) override { push_back(decl->to<Type_Var>()); }
     validate{ parameters.check_null(); }
     toString {
         if (parameters.size() == 0)
@@ -241,6 +243,8 @@ abstract Type_StructLike : Type_Declaration, ISimpleNamespace, IAnnotated {
         return rv; }
     IR::IDeclaration getDeclByName(cstring name) const override {
         return fields.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        fields.push_back(decl->to<StructField>()); }
     validate{ fields.check_null(); }
     dbprint;
 #apply
@@ -414,6 +418,8 @@ class Type_Enum : Type_Declaration, ISimpleNamespace, IAnnotated {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        members.push_back(decl->to<Declaration_ID>()); }
 #nodbprint
     validate{ members.check_null(); }
 }
@@ -435,6 +441,9 @@ class Type_SerEnum : Type_Declaration, ISimpleNamespace, IAnnotated {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        BUG_CHECK(decl->is<SerEnumMember>(), "Not a serializable enum member declaration");
+        members.push_back(decl->to<SerEnumMember>()); }
 #nodbprint
     validate{ members.check_null(); }
 }
@@ -560,6 +569,8 @@ class Type_Extern : Type_Declaration, IGeneralNamespace, IMayBeGenericType, IAnn
     Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return methods.getEnumerator()->as<const IDeclaration*>()
             ->concat(attributes.valueEnumerator()->as<const IDeclaration*>()); }
+    void addDecl(const IDeclaration *decl) override {
+        methods.push_back(decl->to<Method>()); }
     virtual TypeParameters getTypeParameters() const override { return typeParameters; }
     validate{ methods.check_null(); }
     Annotations getAnnotations() const override { return annotations; }

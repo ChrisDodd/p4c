@@ -66,6 +66,8 @@ class ParserState : ISimpleNamespace, Declaration, IAnnotated {
         return components.getDeclarations(); }
     const IDeclaration* getDeclByName(cstring name) const override {
         return components.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        components.push_back(decl->to<Declaration>()); }
 
     static const cstring accept;
     static const cstring reject;
@@ -95,6 +97,11 @@ class P4Parser : Type_Declaration, ISimpleNamespace, IApply, IContainer {
         if (decl != nullptr)
             return decl;
         return states.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        if (auto state = decl->to<ParserState>())
+            states.push_back(state);
+        else
+            parserLocals.push_back(decl->to<Declaration>()); }
     Type_Method getApplyMethodType() const override { return type->getApplyMethodType(); }
     ParameterList getApplyParameters() const override { return type->getApplyParameters(); }
     Type_Method getConstructorMethodType() const override;
@@ -125,6 +132,8 @@ class P4Control : Type_Declaration, ISimpleNamespace, IApply, IContainer {
     Type_Method getConstructorMethodType() const override;
     IDeclaration getDeclByName(cstring name) const override {
         return controlLocals.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        controlLocals.push_back(decl->to<Declaration>()); }
     ParameterList getConstructorParameters() const override { return constructorParams; }
 #apply
     validate {
@@ -140,8 +149,19 @@ class P4Action : Declaration, ISimpleNamespace, IAnnotated, IFunctional {
     optional Annotations        annotations = Annotations::empty;
     ParameterList               parameters;
     BlockStatement              body;
-    Util::Enumerator<IDeclaration>* getDeclarations() const override;
-    IDeclaration getDeclByName(cstring name) const override;
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
+        return body->getDeclarations(); }
+    IDeclaration getDeclByName(cstring name) const override {
+        return body->getDeclByName(name); }
+    void addDecl(const IDeclaration *decl) override {
+        if (decl->is<Parameter>()) {
+            auto tmp = parameters->clone();
+            tmp->addDecl(decl);
+            parameters = tmp;
+        } else {
+            auto tmp = body->clone();
+            tmp->addDecl(decl);
+            body = tmp; } }
     Annotations getAnnotations() const override { return annotations; }
     ParameterList getParameters() const override { return parameters; }
 }
@@ -153,6 +173,8 @@ class Type_Error : ISimpleNamespace, Type_Declaration {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        members.push_back(decl->to<Declaration_ID>()); }
     validate{ members.check_null(); }
 }
 
@@ -163,6 +185,8 @@ class Declaration_MatchKind : ISimpleNamespace {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
+    void addDecl(const IDeclaration *decl) override {
+        members.push_back(decl->to<Declaration_ID>()); }
     validate{ members.check_null(); }
 }
 
@@ -278,6 +302,7 @@ class TableProperties : ISimpleNamespace {
     IDeclaration getDeclByName(cstring name) const override {
         return properties.getDeclaration(name); }
     void push_back(Property prop) { properties.push_back(prop); }
+    void addDecl(const IDeclaration *decl) override { push_back(decl->to<Property>()); }
 
     static const cstring actionsPropertyName;
     static const cstring keyPropertyName;
@@ -400,6 +425,8 @@ class P4Program : IGeneralNamespace {
     optional inline Vector<Node> objects;
     Util::Enumerator<IDeclaration>* getDeclarations() const override;
     validate{ objects.check_null(); }
+    void addDecl(const IDeclaration *decl) override {
+        objects.push_back(decl->getNode()); }
     static const cstring main;
 #apply
 }
@@ -450,6 +477,7 @@ class BlockStatement : Statement, ISimpleNamespace, IAnnotated {
         return components.getDeclarations(); }
     void push_back(StatOrDecl st) { components.push_back(st); }
     Annotations getAnnotations() const override { return annotations; }
+    void addDecl(const IDeclaration *decl) override { push_back(decl->to<Declaration>()); }
 }
 
 class MethodCallStatement : Statement {

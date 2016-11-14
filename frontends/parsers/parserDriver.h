@@ -20,6 +20,7 @@ limitations under the License.
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <deque>
 
 #include "frontends/p4/symbol_table.h"
 #include "frontends/parsers/p4/abstractP4Lexer.hpp"
@@ -199,9 +200,8 @@ class P4ParserDriver final : public AbstractParserDriver {
     /// Semantic information about the program being parsed.
     Util::ProgramStructure* structure = nullptr;
 
-    /// The top-level nodes that make up the P4 program (or program fragment)
-    /// we're parsing.
-    IR::Vector<IR::Node>* nodes = nullptr;
+    /// The current scope in the P4 program we're parsing.
+    std::deque<IR::INamespace *> current_scope;
 
     /// A scratch buffer to hold the current string literal. (They're lexed
     /// incrementally, so we need to hold some state between tokens.)
