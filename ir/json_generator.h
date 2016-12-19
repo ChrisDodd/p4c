@@ -231,6 +231,13 @@ class JSONGenerator {
         else
             out << "null";
     }
+    template<typename T>
+    void generate(const IR::REF<T> &v) {
+        if (v != nullptr)
+            generate(*v);
+        else
+            out << "null";
+    }
 
     template<typename T, size_t N>
     void generate(const T (&v)[N]) {

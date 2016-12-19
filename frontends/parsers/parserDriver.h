@@ -265,7 +265,7 @@ class V1ParserDriver final : public P4::AbstractParserDriver {
      * @return an IR::Constant containing the value of @expr, if @expr is a
      * constant expression, or null otherwise.
      */
-    IR::Constant* constantFold(IR::Expression* expr);
+    const IR::Constant *constantFold(const IR::Expression* expr);
 
     /// @return a vector of IR::Expressions containing an IR::StringLiteral for
     /// name in @list.

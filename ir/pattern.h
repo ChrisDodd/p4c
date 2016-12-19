@@ -81,6 +81,8 @@ class Pattern {
         Match() : m(nullptr) {}
         const T *operator->() const { return m; }
         operator const T *() const { return m; }
+        operator IR::REF<T>() const { return m; }
+        template<class U> operator IR::REF<U>() const { return m; }
         Pattern operator*(const Pattern &a) { return Pattern(*this) * a; }
         Pattern operator/(const Pattern &a) { return Pattern(*this) / a; }
         Pattern operator%(const Pattern &a) { return Pattern(*this) % a; }

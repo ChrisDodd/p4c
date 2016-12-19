@@ -120,7 +120,11 @@ class JSONLoader {
         v = IR::Vector<T>::fromJSON(*this); }
     template<typename T> void unpack_json(IR::IndexedVector<T> &v) {
         v = *IR::IndexedVector<T>::fromJSON(*this); }
+    template<typename T> void unpack_json(IR::REF<IR::Vector<T>> &v) {
+        v = IR::Vector<T>::fromJSON(*this); }
     template<typename T> void unpack_json(const IR::IndexedVector<T> *&v) {
+        v = IR::IndexedVector<T>::fromJSON(*this); }
+    template<typename T> void unpack_json(IR::REF<IR::IndexedVector<T>> &v) {
         v = IR::IndexedVector<T>::fromJSON(*this); }
     template<class T, template<class K, class V, class COMP, class ALLOC> class MAP,
              class COMP, class ALLOC>
@@ -129,6 +133,10 @@ class JSONLoader {
     template<class T, template<class K, class V, class COMP, class ALLOC> class MAP,
              class COMP, class ALLOC>
     void unpack_json(const IR::NameMap<T, MAP, COMP, ALLOC> *&m) {
+        m = IR::NameMap<T, MAP, COMP, ALLOC>::fromJSON(*this); }
+    template<class T, template<class K, class V, class COMP, class ALLOC> class MAP,
+             class COMP, class ALLOC>
+    void unpack_json(IR::REF<IR::NameMap<T, MAP, COMP, ALLOC>> &m) {
         m = IR::NameMap<T, MAP, COMP, ALLOC>::fromJSON(*this); }
 
     template<typename K, typename V>
@@ -257,6 +265,7 @@ class JSONLoader {
     unpack_json(T &v) { v = *(get_node()->to<T>()); }
     template<typename T> typename std::enable_if<std::is_base_of<IR::INode, T>::value>::type
     unpack_json(const T *&v) { v = get_node()->to<T>(); }
+    template<typename T> void unpack_json(IR::REF<T> &v) { v = get_node()->to<T>(); }
 
     template<typename T, size_t N>
     void unpack_json(T (&v)[N]) {

@@ -549,7 +549,7 @@ bool ToP4::preorder(const IR::Type_Control* t) {
 
 bool ToP4::preorder(const IR::Constant* c) {
     mpz_class value = c->value;
-    const IR::Type_Bits* tb = dynamic_cast<const IR::Type_Bits*>(c->type);
+    auto tb = c->type.to<IR::Type::Bits>();
     if (tb != nullptr) {
         mpz_class zero = 0;
         if (value < zero) {

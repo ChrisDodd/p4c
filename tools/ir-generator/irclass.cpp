@@ -490,10 +490,10 @@ void IrField::generate(std::ostream &out, bool asField) const {
         } else if (cls->kind == NodeKind::Template) {
             throw Util::CompilationError("No args for template %1%", cls); } }
     if (cls != nullptr && !isInline)
-        out << "const ";
+        out << (asField ? "REF<" : "const ");
     out << type->toString();
     if (cls != nullptr && !isInline)
-        out << "*";
+        out << (asField ? ">" : "*");
     out << " " << name << type->declSuffix();
     if (asField) {
         if (!isStatic) {

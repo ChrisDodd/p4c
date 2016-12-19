@@ -451,28 +451,48 @@ ControlFlowVisitor &ControlFlowVisitor::flow_clone() {
 IRNODE_ALL_NON_TEMPLATE_CLASSES(DEFINE_APPLY_FUNCTIONS, , , )
 
 #define DEFINE_VISIT_FUNCTIONS(CLASS, BASE)                                             \
-    void Visitor::visit(const IR::CLASS *&n, const char *name) {                 \
+    void Visitor::visit(const IR::CLASS *&n, const char *name) {                        \
         auto t = apply_visitor(n, name);                                                \
         n = dynamic_cast<const IR::CLASS *>(t);                                         \
         if (t && !n)                                                                    \
             BUG("visitor returned non-" #CLASS " type: %1%", t); }                      \
-    void Visitor::visit(const IR::CLASS *const &n, const char *name) {           \
+    void Visitor::visit(const IR::CLASS *const &n, const char *name) {                  \
         /* This function needed solely due to order of declaration issues */            \
         visit(static_cast<const IR::Node *const &>(n), name); }                         \
-    void Visitor::visit(const IR::CLASS *&n, const char *name, int cidx) {       \
+    void Visitor::visit(const IR::CLASS *&n, const char *name, int cidx) {              \
         ctxt->child_index = cidx;                                                       \
         auto t = apply_visitor(n, name);                                                \
         n = dynamic_cast<const IR::CLASS *>(t);                                         \
         if (t && !n)                                                                    \
             BUG("visitor returned non-" #CLASS " type: %1%", t); }                      \
-    void Visitor::visit(const IR::CLASS *const &n, const char *name, int cidx) { \
+    void Visitor::visit(const IR::CLASS *const &n, const char *name, int cidx) {        \
         /* This function needed solely due to order of declaration issues */            \
-        visit(static_cast<const IR::Node *const &>(n), name, cidx); }
+        visit(static_cast<const IR::Node *const &>(n), name, cidx); }                   \
+    void Visitor::visit(IR::REF<IR::CLASS> &n, const char *name) {                      \
+        auto t = apply_visitor(n, name);                                                \
+        n = dynamic_cast<const IR::CLASS *>(t);                                         \
+        if (t && n == nullptr)                                                          \
+            BUG("visitor returned non-" #CLASS " type: %1%", t); }                      \
+    void Visitor::visit(const IR::REF<IR::CLASS> &n, const char *name) {                \
+        /* This function needed solely due to order of declaration issues */            \
+        visit(static_cast<const IR::REF<IR::Node> &>(n), name); }                       \
+    void Visitor::visit(IR::REF<IR::CLASS> &n, const char *name, int cidx) {            \
+        ctxt->child_index = cidx;                                                       \
+        auto t = apply_visitor(n, name);                                                \
+        n = dynamic_cast<const IR::CLASS *>(t);                                         \
+        if (t && n == nullptr)                                                          \
+            BUG("visitor returned non-" #CLASS " type: %1%", t); }                      \
+    void Visitor::visit(const IR::REF<IR::CLASS> &n, const char *name, int cidx) {      \
+        /* This function needed solely due to order of declaration issues */            \
+        visit(static_cast<const IR::REF<IR::Node> &>(n), name, cidx); }
     IRNODE_ALL_SUBCLASSES(DEFINE_VISIT_FUNCTIONS)
 #undef DEFINE_VISIT_FUNCTIONS
 
+// FIXME -- should these be in here? or vector.cpp? or expressions.cpp?
 std::ostream &operator<<(std::ostream &out, const IR::Vector<IR::Expression> *v) {
     return v ? out << *v : out << "<null>"; }
+inline std::ostream &operator<<(std::ostream &out, const IR::REF<IR::Vector<IR::Expression>> &v) {
+    return v != nullptr ? out << *v : out << "<null>"; }
 
 #if HAVE_CXXABI_H
 #include <cxxabi.h>

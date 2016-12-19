@@ -12,7 +12,7 @@ uninit.p4(41): [--Wwarn=uninitialized_use] warning: h.data3 may be uninitialized
                   ^^^^^^^
 uninit.p4(42): [--Wwarn=uninitialized_use] warning: [] may not be completely initialized
         stack[0] = stack[1]; // uninitialized
-                   ^^^^^^^^
+                   ^^^^^^^
 uninit.p4(62): [--Wwarn=uninitialized_use] warning: c may be uninitialized
         c = !c; // uninitialized;
              ^

@@ -133,7 +133,7 @@ class PrimitiveConverter {
     virtual ~PrimitiveConverter();
 
     // helper functions
-    safe_vector<const IR::Expression *> convertArgs(ProgramStructure *, const IR::Primitive *);
+    safe_vector<IR::ERef> convertArgs(ProgramStructure *, const IR::Primitive *);
 
  public:
     virtual const IR::Statement *convert(ProgramStructure *, const IR::Primitive *) = 0;

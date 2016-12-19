@@ -263,8 +263,8 @@ class ProgramStructure {
     /// This inserts the names of the identifiers used in the output P4-16 programs
     /// into allNames, forcing P4-14 names that clash to be renamed.
     void populateOutputNames();
-    const IR::AssignmentStatement* assign(Util::SourceInfo srcInfo, const IR::Expression* left,
-                                          const IR::Expression* right, const IR::Type* type);
+    const IR::AssignmentStatement* assign(Util::SourceInfo srcInfo, const IR::ERef left,
+                                          const IR::ERef right, const IR::Type* type);
     virtual const IR::Expression* convertFieldList(const IR::Expression* expression);
     virtual const IR::Expression* convertHashAlgorithm(Util::SourceInfo srcInfo, IR::ID algorithm);
     virtual const IR::Expression* convertHashAlgorithms(const IR::NameList *algorithm);
@@ -273,9 +273,9 @@ class ProgramStructure {
     virtual const IR::Type_Struct* createFieldListType(const IR::Expression* expression);
     virtual const IR::FieldListCalculation* getFieldListCalculation(const IR::Expression *);
     virtual const IR::FieldList* getFieldLists(const IR::FieldListCalculation* flc);
-    virtual const IR::Expression* paramReference(const IR::Parameter* param);
-    const IR::Statement* sliceAssign(const IR::Primitive* prim, const IR::Expression* left,
-                                     const IR::Expression* right, const IR::Expression* mask);
+    virtual IR::ERef paramReference(const IR::Parameter* param);
+    const IR::Statement* sliceAssign(const IR::Primitive* prim, const IR::ERef left,
+                                     const IR::ERef right, const IR::ERef mask);
     void tablesReferred(const IR::V1Control* control, std::vector<const IR::V1Table*> &out);
     bool isHeader(const IR::ConcreteHeaderRef* nhr) const;
     cstring makeUniqueName(cstring base);

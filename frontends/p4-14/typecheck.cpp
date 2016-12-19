@@ -32,7 +32,7 @@ class TypeCheck::AssignInitialTypes : public Transform {
     const IR::V1Program   *global = nullptr;
 
     template <typename NodeType, typename TypeType>
-    void setType(NodeType* currentNode, const TypeType* type) {
+    void setType(NodeType* currentNode, TypeType type) {
         BUG_CHECK(currentNode == getCurrentNode<NodeType>(),
                   "Expected to be called on the visitor's current node");
         currentNode->type = type;
@@ -299,7 +299,7 @@ class TypeCheck::InferExpressionsBottomUp : public Modifier {
             }
         }
     }
-    void logic_operand(const IR::Expression *&op) {
+    void logic_operand(IR::REF<IR::Expression> &op) {
         if (auto *bit = op->type->to<IR::Type::Bits>()) {
             LOG3("Inserted bool conversion for " << op);
             op = new IR::Neq(IR::Type::Boolean::get(), op, new IR::Constant(bit, 0));

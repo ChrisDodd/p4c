@@ -36,13 +36,13 @@ limitations under the License.
 
 // Special IR classes and types
 #include "node.h"
+#include "ref.h"
 #include "vector.h"
 #include "indexed_vector.h"
 #include "dbprint.h"
 #include "namemap.h"
 #include "nodemap.h"
 #include "id.h"
-
 
 // generated ir file
 #include "ir/ir-generated.h"
@@ -53,5 +53,6 @@ class JSONLoader;
 #include "pass_manager.h"
 #include "ir-inline.h"
 #include "dump.h"
+#include "expression_ref.h"
 
 #endif /* _IR_IR_H_*/

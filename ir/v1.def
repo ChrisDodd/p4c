@@ -397,7 +397,7 @@ class ActionSelector : Attached {
 
 class V1Table : IInstance {
     optional ID                 name;
-    NullOK Vector<Expression>   reads = 0;
+    NullOK Vector<Expression>   reads = nullptr;
     safe_vector<ID>             reads_types = {};
     int                         min_size = 0;
     int                         max_size = 0;
@@ -406,7 +406,7 @@ class V1Table : IInstance {
     safe_vector<ID>             actions = {};
     ID                          default_action = {};
     bool                        default_action_is_const = false;
-    NullOK Vector<Expression>   default_action_args = 0;
+    NullOK Vector<Expression>   default_action_args = nullptr;
     inline TableProperties      properties = {};  // non-standard properties
     optional Annotations        annotations = Annotations::empty;
 

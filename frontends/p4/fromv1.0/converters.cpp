@@ -105,23 +105,18 @@ const IR::Node* ExpressionConverter::postorder(IR::Primitive* primitive) {
             return primitive;
         }
 
-        const IR::Expression* method = new IR::Member(
-            structure->paramReference(structure->parserPacketIn),
-            P4::P4CoreLibrary::instance.packetIn.lookahead.Id());
+        IR::ERef method = structure->paramReference(structure->parserPacketIn)
+                .Member(P4::P4CoreLibrary::instance.packetIn.lookahead.Id());
         auto typeargs = new IR::Vector<IR::Type>();
         typeargs->push_back(IR::Type_Bits::get(aval + bval));
-        auto lookahead = new IR::MethodCallExpression(method, typeargs);
-        auto result = new IR::Slice(primitive->srcInfo, lookahead,
-                                    new IR::Constant(bval - 1),
-                                    new IR::Constant(0));
-        result->type = IR::Type_Bits::get(bval);
+        IR::ERef lookahead = method(typeargs);
+        IR::ERef result = lookahead.Slice(bval - 1, 0);
         return result;
     } else if (primitive->name == "valid") {
         BUG_CHECK(primitive->operands.size() == 1, "Expected 1 operand for %1%", primitive);
-        auto base = primitive->operands.at(0);
-        auto method = new IR::Member(primitive->srcInfo, base, IR::ID(IR::Type_Header::isValid));
-        auto result = new IR::MethodCallExpression(primitive->srcInfo, IR::Type::Boolean::get(),
-                                                   method);
+        IR::ERef base = primitive->operands.at(0);
+        IR::ERef method = base.Member(primitive->srcInfo, IR::Type_Header::isValid);
+        IR::ERef result = method(IR::Type::Boolean::get());
         return result;
     }
     BUG("Unexpected primitive %1%", primitive);
@@ -268,9 +263,9 @@ ExpressionConverter::funcType ExpressionConverter::get(cstring type) {
 const IR::Node* StatementConverter::preorder(IR::Apply* apply) {
     auto table = structure->tables.get(apply->name);
     auto newname = structure->tables.get(table);
-    auto tbl = new IR::PathExpression(newname);
-    auto method = new IR::Member(apply->srcInfo, tbl, IR::ID(IR::IApply::applyMethodName));
-    auto call = new IR::MethodCallExpression(apply->srcInfo, method);
+    IR::ERef tbl = new IR::PathExpression(newname);
+    IR::ERef method = tbl.Member(apply->srcInfo, IR::IApply::applyMethodName);
+    auto call = method();
     if (apply->actions.size() == 0) {
         auto stat = new IR::MethodCallStatement(apply->srcInfo, call);
         prune();
@@ -300,7 +295,7 @@ const IR::Node* StatementConverter::preorder(IR::Apply* apply) {
             StatementConverter conv(structure, renameMap);
             auto hitcase = hit ? conv.convert(hit) : new IR::EmptyStatement();
             auto misscase = miss ? conv.convert(miss) : nullptr;
-            auto check = new IR::Member(call, IR::Type_Table::hit);
+            IR::ERef check = IR::ERef(call).Member(IR::Type_Table::hit);
             auto ifstat = new IR::IfStatement(apply->srcInfo, check, hitcase, misscase);
             prune();
             return ifstat;
@@ -339,11 +334,10 @@ const IR::Node* StatementConverter::preorder(IR::Primitive* primitive) {
     auto control = structure->controls.get(primitive->name);
     if (control != nullptr) {
         auto instanceName = ::get(renameMap, control->name);
-        auto ctrl = new IR::PathExpression(IR::ID(instanceName));
-        auto method = new IR::Member(ctrl, IR::ID(IR::IApply::applyMethodName));
+        IR::ERef ctrl = new IR::PathExpression(IR::ID(instanceName));
+        IR::ERef method = new IR::Member(ctrl, IR::ID(IR::IApply::applyMethodName));
         auto args = structure->createApplyArguments(control->name);
-        auto call = new IR::MethodCallExpression(primitive->srcInfo, method, args);
-        auto stat = new IR::MethodCallStatement(primitive->srcInfo, call);
+        auto stat = new IR::MethodCallStatement(primitive->srcInfo, method(args));
         return stat;
     }
     // FIXME -- always a noop as ExpressionConverter has only postorder methods?
@@ -576,10 +570,10 @@ const IR::Statement *PrimitiveConverter::cvtPrimitive(ProgramStructure *structur
     return nullptr;
 }
 
-safe_vector<const IR::Expression *>
+safe_vector<IR::ERef>
 PrimitiveConverter::convertArgs(ProgramStructure *structure, const IR::Primitive *prim) {
     ExpressionConverter conv(structure);
-    safe_vector<const IR::Expression *> rv;
+    safe_vector<IR::ERef> rv;
     for (auto arg : prim->operands)
         rv.push_back(conv.convert(arg));
     return rv;

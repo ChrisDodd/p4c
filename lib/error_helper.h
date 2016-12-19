@@ -57,23 +57,26 @@ template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T &t, Args... args) ->
     typename std::enable_if<Util::HasToString<T>::value &&
-                            !std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value &&
+                            !std::is_convertible<T, const Util::IHasSourceInfo *>::value,
+                            std::string>::type;
 
 template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T *t, Args... args) ->
     typename std::enable_if<Util::HasToString<T>::value &&
-                            !std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type;
 
 template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T &t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+    std::string>::type;
 
-template<typename T, class... Args>
-auto error_helper(boost::format& f, std::string message, std::string position,
-                  std::string tail, const T *t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+template<class... Args>
+std::string error_helper(boost::format& f, std::string message, std::string position,
+                  std::string tail, const Util::IHasSourceInfo *t, Args... args);
 
 template<class... Args>
 std::string error_helper(boost::format& f, std::string message, std::string position,
@@ -108,7 +111,9 @@ template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T &t, Args... args) ->
     typename std::enable_if<Util::HasToString<T>::value &&
-                            !std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value &&
+                            !std::is_convertible<T, const Util::IHasSourceInfo *>::value,
+                            std::string>::type {
     return error_helper(f % t.toString(), message, position, tail, std::forward<Args>(args)...);
 }
 
@@ -116,7 +121,8 @@ template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T *t, Args... args) ->
     typename std::enable_if<Util::HasToString<T>::value &&
-                            !std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type {
     return error_helper(f % t->toString(), message, position, tail, std::forward<Args>(args)...);
 }
 
@@ -155,10 +161,9 @@ std::string error_helper(boost::format& f, std::string message, std::string posi
                         std::forward<Args>(args)...);
 }
 
-template<typename T, class... Args>
-auto error_helper(boost::format& f, std::string message, std::string position,
-                  std::string tail, const T *t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+template<class... Args>
+std::string error_helper(boost::format& f, std::string message, std::string position,
+                         std::string tail, const Util::IHasSourceInfo *t, Args... args) {
     cstring posString = t->getSourceInfo().toPositionString();
     if (position.empty()) {
         position = posString;
@@ -175,7 +180,8 @@ auto error_helper(boost::format& f, std::string message, std::string position,
 template<typename T, class... Args>
 auto error_helper(boost::format& f, std::string message, std::string position,
                   std::string tail, const T &t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type {
     cstring posString = t.getSourceInfo().toPositionString();
     if (position.empty()) {
         position = posString;
@@ -217,17 +223,27 @@ std::string bug_helper(boost::format& f, std::string message,
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T &t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+    typename std::enable_if<Util::HasToString<T>::value &&
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type;
+
+template<typename T, class... Args>
+auto bug_helper(boost::format& f, std::string message, std::string position,
+                std::string tail, const T &t, Args... args) ->
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type;
 
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T *t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type;
 
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T *t, Args... args) ->
-    typename std::enable_if<!std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type;
+    typename std::enable_if<!std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type;
 
 template<class... Args>
 std::string bug_helper(boost::format& f, std::string message, std::string position,
@@ -241,7 +257,8 @@ template<typename T, class... Args>
 auto
 bug_helper(boost::format& f, std::string message, std::string position,
            std::string tail, const T& t, Args... args) ->
-    typename std::enable_if<!std::is_base_of<Util::IHasSourceInfo, T>::value,
+    typename std::enable_if<!Util::HasToString<T>::value &&
+                            !std::is_base_of<Util::IHasSourceInfo, T>::value,
                             std::string>::type;
 
 // actual implementations
@@ -260,8 +277,17 @@ std::string bug_helper(boost::format& f, std::string message, std::string positi
 
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
+                std::string tail, const T &t, Args... args) ->
+    typename std::enable_if<Util::HasToString<T>::value &&
+                            !std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type {
+    return bug_helper(f % t.toString(), message, position, tail, std::forward<Args>(args)...);
+}
+
+template<typename T, class... Args>
+auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T *t, Args... args) ->
-        typename std::enable_if<!std::is_base_of<Util::IHasSourceInfo, T>::value,
+        typename std::enable_if<!std::is_convertible<T, const Util::IHasSourceInfo &>::value,
                                 std::string>::type {
     std::stringstream str;
     str << t;
@@ -284,7 +310,8 @@ template<typename T, class... Args>
 auto
 bug_helper(boost::format& f, std::string message, std::string position,
            std::string tail, const T& t, Args... args) ->
-    typename std::enable_if<!std::is_base_of<Util::IHasSourceInfo, T>::value,
+    typename std::enable_if<!Util::HasToString<T>::value &&
+                            !std::is_base_of<Util::IHasSourceInfo, T>::value,
                             std::string>::type {
     return bug_helper(f % t, message, position, tail, std::forward<Args>(args)...);
 }
@@ -307,7 +334,8 @@ std::string bug_helper(boost::format& f, std::string message, std::string positi
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T *t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type {
     if (t == nullptr) {
         return bug_helper(f, message, position,
                           tail, std::forward<Args>(args)...);
@@ -331,7 +359,8 @@ auto bug_helper(boost::format& f, std::string message, std::string position,
 template<typename T, class... Args>
 auto bug_helper(boost::format& f, std::string message, std::string position,
                 std::string tail, const T &t, Args... args) ->
-    typename std::enable_if<std::is_base_of<Util::IHasSourceInfo, T>::value, std::string>::type {
+    typename std::enable_if<std::is_convertible<T, const Util::IHasSourceInfo &>::value,
+                            std::string>::type {
     cstring posString = t.getSourceInfo().toPositionString();
     if (position.empty()) {
         position = posString;
