@@ -134,7 +134,7 @@ enum CloneType {
 }
 
 extern void resubmit<T>(in T data);
-extern void recirculate<T>(in T data);
+extern void recirculate(in bit<9> port);
 extern void clone(in CloneType type, in bit<32> session);
 extern void clone3<T>(in CloneType type, in bit<32> session, in T data);
 

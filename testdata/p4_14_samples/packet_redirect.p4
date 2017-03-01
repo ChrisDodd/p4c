@@ -71,8 +71,8 @@ action _resubmit() {
     resubmit(redirect_FL);
 }
 
-action _recirculate() {
-    recirculate(redirect_FL);
+action _recirculate(port) {
+    recirculate(port);
 }
 
 action _multicast(mgrp) {
