@@ -404,6 +404,7 @@ int IrClass::generateConstructor(const ctor_args_t &arglist, const IrMethod *use
         ctor->access = IrElement::Protected;
     ctor->inImpl = true;
     elements.push_back(ctor);
+    methods[name].emplace(ctor->args, ctor);
     return optargs;
 }
 
@@ -454,6 +455,17 @@ void IrClass::resolve() {
     generateMethods();
     for (auto e : elements)
         e->resolve();
+}
+
+IrClass::overload_set_t *IrClass::getInheritedMethods(cstring name, IrClass::overload_set_t *rv) const {
+    if (!rv) rv = new overload_set_t;
+    for (auto *parent : parentClasses) {
+        if (parent->methods.count(name))
+            for (auto &m : parent->methods.at(name))
+                if (!rv->count(m.first))
+                    rv->emplace(m.first, m.second);
+        parent->getInheritedMethods(name, rv); }
+    return rv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
