@@ -158,6 +158,7 @@ class IrField : public IrElement {
     const bool isInline = false;
     const bool isStatic = false;
     const bool isConst = false;
+    const bool isVirtual = false;
 
     static IrField *srcInfoField();
 
@@ -170,7 +171,8 @@ class IrField : public IrElement {
           optional(flags & Optional),
           isInline(flags & Inline),
           isStatic(flags & Static),
-          isConst(flags & Const) {}
+          isConst(flags & Const),
+          isVirtual(flags & Virtual) {}
     IrField(const Type *type, cstring name, cstring init = cstring(), int flags = 0)
         : IrField(Util::SourceInfo(), type, name, init, flags) {}
     IrField(const Type *type, cstring name, int flags)
@@ -284,6 +286,9 @@ class IrClass : public IrElement {
 
     std::vector<const CommentBlock *> comments;
     std::vector<IrElement *> elements;
+    typedef std::map<TupleType, IrMethod *>     overload_set_t;
+    std::map<cstring, overload_set_t>     methods;
+    overload_set_t *getInheritedMethods(cstring name, overload_set_t * = nullptr) const;
     IrNamespace *containedIn, local;
     const NodeKind kind;
     const cstring name;

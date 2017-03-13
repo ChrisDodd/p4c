@@ -194,4 +194,21 @@ cstring FunctionType::toString() const {
     return result;
 }
 
+TupleType::TupleType(const std::vector<const IrField *> &v) {
+    for (auto f : v)
+        vec.push_back(f->type);
+}
+
+cstring TupleType::declSuffix() const {
+    std::string buf = "(";
+    const char *sep = "";
+    for (auto t : vec) {
+        buf += sep;
+        buf += t->toString();
+        buf += t->declSuffix();
+        sep = ", "; }
+    buf += ")";
+    return buf;
+}
+
 }  // namespace P4

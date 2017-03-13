@@ -446,6 +446,7 @@ void IrClass::generateMethods() {
     IrMethod *ctor = nullptr;
     bool user_defined_default_ctor = false;
     for (auto m : *getUserMethods()) {
+        methods[m->name].emplace(m->args, m);
         if (m->rtype) {
             m->rtype->resolve(&local);
             continue;
@@ -497,6 +498,22 @@ void IrClass::generateMethods() {
             int optargs = generateConstructor(args, ctor, 0);
             for (unsigned skip = 1; skip < (1U << optargs); ++skip)
                 generateConstructor(args, ctor, skip);
+        }
+    }
+    for (auto &method : methods) {
+        for (auto &fn : *getInheritedMethods(method.first)) {
+            if (method.second.count(fn.first)) {
+                IrMethod *m = method.second.at(fn.first);
+                if (fn.second->isVirtual) m->isVirtual = true;
+                auto margs = m->args.begin();
+                for (auto arg : fn.second->args) {
+                    assert(margs != m->args.end());
+                    auto a = *margs;
+                    if (arg->isVirtual && !a->isVirtual)
+                        *margs = new IrField(a->srcInfo, a->type, a->name, a->initializer, Virtual);
+                    ++margs; }
+            } else {
+            }
         }
     }
 }

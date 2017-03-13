@@ -296,14 +296,14 @@ methodName
     ;
 
 optArgList : argList | ;
-
-argList
+argList : argument | argList ',' { $<irMethod>$ = $<irMethod>0; } argument ;
+argument
     : type IDENTIFIER optInitializer
             { auto *field = new IrField(@2, $1, $2, $3);
               field->clss = $<irMethod>0->clss;
               $<irMethod>0->args.push_back(field); }
-    | argList ',' type IDENTIFIER optInitializer
-            { auto *field = new IrField(@4, $3, $4, $5);
+    | VIRTUAL type IDENTIFIER
+            { auto *field = new IrField(@3, $2, $3, nullptr, IrElement::Virtual);
               field->clss = $<irMethod>0->clss;
               $<irMethod>0->args.push_back(field); }
     ;

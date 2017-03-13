@@ -26,13 +26,15 @@ limitations under the License.
 namespace P4 {
 
 class IrClass;
+class IrField;
 class IrNamespace;
 
 using namespace P4::literals;
 
 #define ALL_TYPES(M) \
     M(NamedType)     \
-    M(TemplateInstantiation) M(ReferenceType) M(PointerType) M(ArrayType) M(FunctionType)
+    M(TemplateInstantiation) M(ReferenceType) M(PointerType) M(ArrayType) M(FunctionType) \
+    M(TupleType)
 #define FORWARD_DECLARE(T) class T;
 ALL_TYPES(FORWARD_DECLARE)
 #undef FORWARD_DECLARE
@@ -48,11 +50,16 @@ class Type : public Util::IHasSourceInfo {
     virtual bool isResolved() const = 0;
     virtual cstring declSuffix() const { return ""_cs; }
     virtual bool operator==(const Type &) const = 0;
+    virtual bool operator<(const Type &) const = 0;
     bool operator!=(const Type &t) const { return !operator==(t); }
 #define OP_EQUALS(T) \
     virtual bool operator==(const T &) const { return false; }
     ALL_TYPES(OP_EQUALS)
+#define OP_LESS(T) \
+    virtual bool operator<(const T &) const;
+    ALL_TYPES(OP_LESS)
 #undef OP_EQUALS
+#undef OP_LESS
 };
 
 struct LookupScope : public Util::IHasSourceInfo {
@@ -99,6 +106,14 @@ class NamedType : public Type {
         if (name != t.name) return false;
         return (lookup == t.lookup || (lookup && t.lookup && *lookup == *t.lookup));
     }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const NamedType &>(t));
+    }
+    bool operator<(const NamedType &t) const override {
+        if (resolved || t.resolved) return resolved < t.resolved;
+        return name < t.name;
+    }
 
     static NamedType &Bool();
     static NamedType &Int();
@@ -137,6 +152,16 @@ class TemplateInstantiation : public Type {
             if (*args[i] != *t.args[i]) return false;
         return true;
     }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const TemplateInstantiation &>(t));
+    }
+    bool operator<(const TemplateInstantiation &t) const override {
+        if (*base != *t.base) return *base < *t.base;
+        for (size_t i = 0; i < args.size() && i < t.args.size(); i++)
+            if (*args[i] != *t.args[i]) return *args[i] < *t.args[i];
+        return args.size() < t.args.size();
+    }
 };
 
 class ReferenceType : public Type {
@@ -156,6 +181,14 @@ class ReferenceType : public Type {
     bool operator==(const Type &t) const override { return t == *this; }
     bool operator==(const ReferenceType &t) const override {
         return isConst == t.isConst && *base == *t.base;
+    }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const ReferenceType &>(t));
+    }
+    bool operator<(const ReferenceType &t) const override {
+        if (*base != *t.base) return *base < *t.base;
+        return isConst && !t.isConst;
     }
     static ReferenceType OstreamRef, VisitorRef;
 };
@@ -178,6 +211,14 @@ class PointerType : public Type {
     bool operator==(const PointerType &t) const override {
         return isConst == t.isConst && *base == *t.base;
     }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const PointerType &>(t));
+    }
+    bool operator<(const PointerType &t) const override {
+        if (*base != *t.base) return *base < *t.base;
+        return isConst && !t.isConst;
+    }
 };
 
 class ArrayType : public Type {
@@ -196,6 +237,14 @@ class ArrayType : public Type {
     bool operator==(const Type &t) const override { return t == *this; }
     bool operator==(const ArrayType &t) const override {
         return size == t.size && *base == *t.base;
+    }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const ArrayType &>(t));
+    }
+    bool operator<(const ArrayType &t) const override {
+        if (*base != *t.base) return *base < *t.base;
+        return size < t.size;
     }
 };
 
@@ -217,10 +266,57 @@ class FunctionType : public Type {
              ++i, ++j) {
             if (!(**i == **j)) return false;
         }
-
         return true;
     }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const FunctionType &>(t));
+    }
+    bool operator<(const FunctionType &t) const override {
+        if (*ret != *t.ret) return *ret < *t.ret;
+        for (size_t i = 0; i < args.size() && i < t.args.size(); i++)
+            if (*args[i] != *t.args[i]) return *args[i] < *t.args[i];
+        return args.size() < t.args.size();
+    }
 };
+
+class TupleType : public Type {
+ public:
+    std::vector<const Type *>   vec;
+    TupleType(const std::vector<const Type *> &v) : vec(v) {}
+    TupleType(const std::vector<const IrField *> &);
+    bool isResolved() const override { return false; }
+    const IrClass *resolve(const IrNamespace *ns) const override {
+        for (auto t : vec) t->resolve(ns);
+        return nullptr;
+    }
+    cstring toString() const override { return ""_cs; }
+    cstring declSuffix() const override;
+    bool operator==(const Type &t) const override { return t == *this; }
+    bool operator==(const TupleType &t) const override {
+        if (vec.size() != t.vec.size()) return false;
+        for (size_t i = 0; i < vec.size(); i++)
+            if (*vec[i] != *t.vec[i]) return false;
+        return true;
+    }
+    bool operator<(const Type &t) const override {
+        if (typeid(*this) != typeid(t)) return typeid(*this).before(typeid(t));
+        return operator<(dynamic_cast<const TupleType &>(t));
+    }
+    bool operator<(const TupleType &t) const override {
+        for (size_t i = 0; i < vec.size() && i < t.vec.size(); i++)
+            if (*vec[i] != *t.vec[i]) return *vec[i] < *t.vec[i];
+        return vec.size() < t.vec.size();
+    }
+};
+
+#define OP_LESS(T)                                      \
+    inline bool Type::operator<(const T &t) const {     \
+        assert(typeid(*this) != typeid(t));             \
+        return typeid(*this).before(typeid(t));         \
+    }
+ALL_TYPES(OP_LESS)
+#undef OP_LESS
 
 }  // namespace P4
 

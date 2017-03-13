@@ -532,6 +532,7 @@ int IrClass::generateConstructor(const ctor_args_t &arglist, const IrMethod *use
     if (kind == NodeKind::Abstract) ctor->access = IrElement::Protected;
     ctor->inImpl = false;
     elements.push_back(ctor);
+    methods[name].emplace(ctor->args, ctor);
     return optargs;
 }
 
@@ -594,6 +595,17 @@ void IrEnumType::generate_hdr(std::ostream &out) const {
     out << "enum " << (isClassEnum ? "class " : "") << name << "\n"
         << LineDirective(srcInfo, +1) << body << ";\n"
         << LineDirective();
+}
+
+IrClass::overload_set_t *IrClass::getInheritedMethods(cstring name, IrClass::overload_set_t *rv) const {
+    if (!rv) rv = new overload_set_t;
+    for (auto *parent : parentClasses) {
+        if (parent->methods.count(name))
+            for (auto &m : parent->methods.at(name))
+                if (!rv->count(m.first))
+                    rv->emplace(m.first, m.second);
+        parent->getInheritedMethods(name, rv); }
+    return rv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
