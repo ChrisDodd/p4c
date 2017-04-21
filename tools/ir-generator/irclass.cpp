@@ -363,17 +363,6 @@ void IrMethod::generate_impl(std::ostream &out) const {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-void IrApply::generate_hdr(std::ostream &out) const {
-    out << IrClass::indent << "IRNODE_DECLARE_APPLY_OVERLOAD(" << clss->name << ")" << std::endl;
-}
-
-void IrApply::generate_impl(std::ostream &out) const {
-    out << "IRNODE_DEFINE_APPLY_OVERLOAD(" << clss->containedIn << clss->name << ", , )"
-        << std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-
 void IrClass::declare(std::ostream &out) const { out << "class " << name << ";" << std::endl; }
 
 std::string IrClass::fullName() const {
@@ -455,6 +444,7 @@ void IrClass::generate_hdr(std::ostream &out) const {
         if (!concreteParent) out << ", " << (kind != NodeKind::Interface ? "Node" : "INode");
         for (const auto *p : parentClasses) out << ", " << p->qualified_name(containedIn);
         out << ");" << std::endl;
+        out << indent << "IRNODE_DECLARE_APPLY_OVERLOAD(" << name << ")" << std::endl;
     }
 
     out << "};" << std::endl;
@@ -466,6 +456,8 @@ void IrClass::generate_hdr(std::ostream &out) const {
 
 void IrClass::generate_impl(std::ostream &out) const {
     for (auto e : elements) e->generate_impl(out);
+    if (kind != NodeKind::Nested && kind != NodeKind::Interface)
+        out << "IRNODE_DEFINE_APPLY_OVERLOAD(" << containedIn << name << ", , )" << std::endl;
 }
 
 void IrClass::computeConstructorArguments(IrClass::ctor_args_t &args) const {

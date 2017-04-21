@@ -235,7 +235,7 @@ part
     | irField         { $$ = $1; }
     | method          { $$ = $1; }
     | constFieldInit  { $$ = $1; }
-    | APPLY           { $$ = new IrApply(@1); }
+    | APPLY           { $$ = 0; /* now automatically happens in every class */ }
     | CLASS           { BEGIN(PARSE_BRACKET); }
       IDENTIFIER '{'  { $<irClass>$ = new IrClass(@2, &$<irClass>0->local, NodeKind::Nested, $3); }
       partList '}'    { $$ = $<irClass>5; }
