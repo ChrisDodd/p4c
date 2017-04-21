@@ -160,14 +160,6 @@ class IrNo : public IrElement {
     cstring toString() const override { return "#no" + text; }
 };
 
-class IrApply : public IrElement {
- public:
-    explicit IrApply(Util::SourceInfo info) : IrElement(info) {}
-    void generate_hdr(std::ostream &out) const override;
-    void generate_impl(std::ostream &out) const override;
-    cstring toString() const override { return "#apply"; }
-};
-
 enum class NodeKind {
     Interface,
     Abstract,
