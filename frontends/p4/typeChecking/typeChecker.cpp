@@ -1166,7 +1166,10 @@ const IR::Node* TypeInference::postorder(IR::Type_Name* typeName) {
             return typeName;
         }
 
-        type = getType(decl->getNode());
+        if (decl->is<IR::Type>())
+            type = new IR::Type_Type(decl->to<IR::Type>());
+        else
+            type = getType(decl->getNode());
         if (type == nullptr)
             return typeName;
         BUG_CHECK(type->is<IR::Type_Type>(), "%1%: should be a Type_Type", type);

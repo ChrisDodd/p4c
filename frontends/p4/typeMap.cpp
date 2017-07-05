@@ -67,7 +67,8 @@ void TypeMap::setType(const IR::Node* element, const IR::Type* type) {
     auto it = typeMap.find(element);
     if (it != typeMap.end()) {
         const IR::Type* existingType = it->second;
-        if (!TypeMap::implicitlyConvertibleTo(type, existingType))
+        if (!(existingType == type || TypeMap::implicitlyConvertibleTo(type, existingType) ||
+              (existingType->is<IR::Type_Tuple>() && type->is<IR::Type_Tuple>())))
             BUG("Changing type of %1% in type map from %2% to %3%",
                 dbp(element), dbp(existingType), dbp(type));
         return;
