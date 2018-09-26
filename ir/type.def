@@ -395,6 +395,8 @@ class Type_Specialized : Type {
     toString{ return baseType->toString() + "<...>"; }
     validate{ arguments->check_null(); }
     const Type* getP4Type() const override;
+    Type_Specialized(cstring bt, std::initializer_list<Type> args)
+    : baseType(new Type_Name(bt)), arguments(new Vector<Type>(args)) {}
 }
 
 /** Canonical representation of a Type_Specialized;
