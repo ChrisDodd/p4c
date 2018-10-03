@@ -118,6 +118,7 @@ MidEnd::MidEnd(CompilerOptions& options, std::ostream* outStream) {
         new P4::CompileTimeOperations(),
         new P4::TableHit(&refMap, &typeMap),
         new P4::EliminateSwitch(&refMap, &typeMap),
+        new P4::ParsersUnroll(true, &refMap, &typeMap),
         evaluator,
         [v1controls, evaluator](const IR::Node *root) -> const IR::Node * {
             auto toplevel = evaluator->getToplevelBlock();
