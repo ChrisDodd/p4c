@@ -33,11 +33,10 @@ MethodInstance::resolve(const IR::MethodCallExpression* mce, DeclarationLookup* 
     auto originalType = mt->to<IR::Type_MethodBase>();
     auto actualType = originalType;
     if (!mce->typeArguments->empty()) {
-        auto t = TypeInference::specialize(originalType, mce->typeArguments);
+        auto t = TypeInference::specialize(originalType, mce->typeArguments, ctxt);
         CHECK_NULL(t);
         actualType = t->to<IR::Type_MethodBase>();
-        // FIXME -- currently refMap is always a ReferenceMap, but this arg should soon go away
-        TypeInference tc(dynamic_cast<ReferenceMap*>(refMap), typeMap, true);
+        TypeInference tc(typeMap, true);
         (void)actualType->apply(tc, ctxt);  // may need to learn new type components
         CHECK_NULL(actualType);
     }

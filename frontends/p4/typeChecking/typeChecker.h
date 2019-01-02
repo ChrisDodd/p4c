@@ -20,6 +20,7 @@ limitations under the License.
 #include "ir/ir.h"
 #include "frontends/p4/typeMap.h"
 #include "frontends/common/resolveReferences/referenceMap.h"
+#include "frontends/common/resolveReferences/resolveReferences.h"
 #include "lib/exceptions.h"
 #include "lib/cstring.h"
 #include "frontends/p4/typeChecking/typeSubstitution.h"
@@ -67,18 +68,16 @@ class TypeChecking : public PassManager {
 // with readOnly = true, it will assert that the program is not changed.
 // It is expected that once a program has been type-checked and all casts have
 // been inserted it will not need to change ever again during type-checking.
-class TypeInference : public Transform {
-    // Input: reference map
-    ReferenceMap* refMap;
+class TypeInference : public Transform, ResolutionContext {
     // Output: type map
     TypeMap* typeMap;
     const IR::Node* initialNode;
+    MinimalNameGenerator        unique;
 
  public:
     // If readOnly=true it will assert that it behaves like
     // an Inspector.
-    TypeInference(ReferenceMap* refMap, TypeMap* typeMap,
-                  bool readOnly = false);
+    explicit TypeInference(TypeMap* typeMap, bool readOnly = false);
 
  protected:
     // If true we expect to leave the program unchanged
@@ -179,7 +178,8 @@ class TypeInference : public Transform {
         ::error(ErrorType::ERR_TYPE_ERROR, format, args...);
     }
     static const IR::Type* specialize(const IR::IMayBeGenericType* type,
-                                      const IR::Vector<IR::Type>* arguments);
+                                      const IR::Vector<IR::Type>* arguments,
+                                      const Visitor::Context *ctxt);
     const IR::Node* pruneIfDone(const IR::Node* node)
     { if (done()) { prune(); } return node; }
     const IR::Node* preorder(IR::Expression* expression) override
