@@ -65,14 +65,10 @@ bool SameExpression::sameExpression(const IR::Expression *left, const IR::Expres
         return lc->value == right->to<IR::Constant>()->value;
     } else if (left->is<IR::Literal>()) {
         return *left == *right;
-    } else if (auto lp = left->to<IR::PathExpression>()) {
-        auto ld = refMap->getDeclaration(lp->path, true);
-        auto rd = refMap->getDeclaration(right->to<IR::PathExpression>()->path, true);
-        return ld == rd;
-    } else if (auto tn = left->to<IR::TypeNameExpression>()) {
-        auto lt = tn->typeName;
-        auto rt = right->to<IR::TypeNameExpression>()->typeName;
-        return sameType(lt, rt);
+    } else if (left->is<IR::PathExpression>()) {
+        return left->equiv(*right);
+    } else if (left->is<IR::TypeNameExpression>()) {
+        return left->equiv(*right);
     } else if (auto ll = left->to<IR::ListExpression>()) {
         auto rl = right->to<IR::ListExpression>();
         return sameExpressions(&ll->components, &rl->components);

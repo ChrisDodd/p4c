@@ -276,7 +276,7 @@ const IR::ActionListElement *TypeInferenceBase::validateActionInitializer(
         return nullptr;
     }
 
-    SameExpression se(this, typeMap);
+    SameExpression se(typeMap);
     auto callInstance = MethodInstance::resolve(call, this, typeMap, getChildContext(), true);
     auto listInstance =
         MethodInstance::resolve(actionListCall, this, typeMap, getChildContext(), true);
