@@ -183,7 +183,8 @@ const IR::P4Program *FrontEnd::run(const CompilerOptions &options, const IR::P4P
         // Type checking and type inference.  Also inserts
         // explicit casts where implicit casts exist.
         new SetStrictStruct(&typeMap, true),  // Next pass uses strict struct checking
-        new TypeInference(&refMap, &typeMap, false, false),  // insert casts, don't check arrays
+        new TypeInference(&typeMap, false, false),  // insert casts, don't check arrays
+        new ResolveReferences(&refMap),
         new SetStrictStruct(&typeMap, false),
         new ValidateMatchAnnotations(&typeMap),
         new ValidateValueSets(),
@@ -194,10 +195,11 @@ const IR::P4Program *FrontEnd::run(const CompilerOptions &options, const IR::P4P
             new SpecializeGenericTypes(&refMap, &typeMap),
             new DefaultArguments(&refMap, &typeMap),  // add default argument values to parameters
             new ResolveReferences(&refMap),
-            new SetStrictStruct(&typeMap, true),          // Next pass uses strict struct checking
-            new TypeInference(&refMap, &typeMap, false),  // more casts may be needed
+            new SetStrictStruct(&typeMap, true),   // Next pass uses strict struct checking
+            new TypeInference(&typeMap, false),    // more casts may be needed
+            new ResolveReferences(&refMap),
             new SetStrictStruct(&typeMap, false),
-            new SpecializeGenericFunctions(&refMap, &typeMap),
+            new SpecializeGenericFunctions(&refMap, &typeMap)
         }),
         new CheckCoreMethods(&refMap, &typeMap),
         new StaticAssert(&refMap, &typeMap),

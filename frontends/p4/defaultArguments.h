@@ -62,8 +62,8 @@ class DefaultArguments : public PassManager {
         passes.push_back(new DoDefaultArguments(refMap, typeMap));
         passes.push_back(new ClearTypeMap(typeMap));
         // this may insert casts into the new arguments
-        passes.push_back(new ResolveReferences(refMap)),
-            passes.push_back(new TypeInference(refMap, typeMap, false));
+        passes.push_back(new TypeInference(typeMap, false));
+        passes.push_back(new ResolveReferences(refMap));
     }
 };
 

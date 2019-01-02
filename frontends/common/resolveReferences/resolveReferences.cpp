@@ -262,7 +262,8 @@ const IR::IDeclaration *ResolutionContext::getDeclaration(const IR::Path *path,
         if (path->absolute) ns = findContext<IR::P4Program>();
         result = resolveUnique(path->name, rtype, ns);
     }
-    if (notNull) BUG_CHECK(result != nullptr, "Cannot find declaration for %1%", path);
+    if (notNull)
+        BUG_CHECK(result != nullptr || ::errorCount() > 0, "Cannot find declaration for %1%", path);
     return result;
 }
 

@@ -25,15 +25,10 @@ namespace P4 {
 
 // Check if two expressions are syntactically equivalent
 class SameExpression {
-    const ReferenceMap *refMap;
     const TypeMap *typeMap;
 
  public:
-    explicit SameExpression(const ReferenceMap *refMap, const TypeMap *typeMap)
-        : refMap(refMap), typeMap(typeMap) {
-        CHECK_NULL(refMap);
-        CHECK_NULL(typeMap);
-    }
+    explicit SameExpression(const TypeMap *typeMap) : typeMap(typeMap) { CHECK_NULL(typeMap); }
     bool sameType(const IR::Type *left, const IR::Type *right) const;
     bool sameExpression(const IR::Expression *left, const IR::Expression *right) const;
     bool sameExpressions(const IR::Vector<IR::Expression> *left,
