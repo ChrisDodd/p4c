@@ -80,26 +80,36 @@ void backtrace_fill_stacktrace(std::string &msg, void *const *backtrace, int siz
 #ifdef __GLIBC__
 /* DANGER -- overrides for glibc++ exception throwers to include a stack trace.
  * correct functions depends on library internals, so may not work on some versions
- * and will fail with non-GNU libc++. These function are declared in bits/functexcept.h. */
+ * and will fail with non-GNU libc++. These function are declared in bits/functexcept.h.
+ * It also won't work properly with statically linked libraries, so we use 'weak'
+ * to disable it that case */
 
 namespace std {
 
+void __throw_bad_alloc() __attribute__((weak));
 void __throw_bad_alloc() { throw ::P4::backtrace_exception<bad_alloc>(); }
 
+void __throw_bad_cast() __attribute__((weak));
 void __throw_bad_cast() { throw ::P4::backtrace_exception<bad_cast>(); }
 
+void __throw_bad_function_call() __attribute__((weak));
 void __throw_bad_function_call() { throw ::P4::backtrace_exception<bad_function_call>(); }
 
+void __throw_invalid_argument(char const *m) __attribute__((weak));
 void __throw_invalid_argument(char const *m) {
     throw ::P4::backtrace_exception<invalid_argument>(m);
 }
 
+void __throw_length_error(char const *m) __attribute__((weak));
 void __throw_length_error(char const *m) { throw ::P4::backtrace_exception<length_error>(m); }
 
+void __throw_logic_error(char const *m) __attribute__((weak));
 void __throw_logic_error(char const *m) { throw ::P4::backtrace_exception<logic_error>(m); }
 
+void __throw_out_of_range(char const *m) __attribute__((weak));
 void __throw_out_of_range(char const *m) { throw ::P4::backtrace_exception<out_of_range>(m); }
 
+void __throw_out_of_range_fmt(char const *fmt, ...) __attribute__((weak));
 void __throw_out_of_range_fmt(char const *fmt, ...) {
     char buffer[1024];  // should be large enough for all cases?
     va_list args;
@@ -109,10 +119,12 @@ void __throw_out_of_range_fmt(char const *fmt, ...) {
     throw ::P4::backtrace_exception<out_of_range>(buffer);
 }
 
+void __throw_regex_error(regex_constants::error_type err) __attribute__((weak));
 void __throw_regex_error(regex_constants::error_type err) {
     throw ::P4::backtrace_exception<regex_error>(err);
 }
 
+void __throw_system_error(int err) __attribute__((weak));
 void __throw_system_error(int err) {
     throw ::P4::backtrace_exception<system_error>(error_code(err, generic_category()));
 }
