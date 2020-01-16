@@ -14,6 +14,7 @@
 
 set (IR_SRCS
   base.cpp
+  control_flow_visitor.cpp
   dbprint.cpp
   dbprint-expression.cpp
   dbprint-stmt.cpp
@@ -33,6 +34,7 @@ set (IR_SRCS
 
 set (IR_HDRS
   configuration.h
+  control_flow_visitor.h
   dbprint.h
   dump.h
   id.h
@@ -49,6 +51,7 @@ set (IR_HDRS
   pass_manager.h
   vector.h
   visitor.h
+  visitor_impl.h
 )
 
 set (BASE_IR_DEF_FILES

@@ -283,10 +283,15 @@ class Visitor {
     virtual void visitor_const_error();
     const Context *ctxt = nullptr;  // should be readonly to subclasses
     bool *visitCurrentOnce = nullptr;
+    struct PushContext;
+    class ForwardChildren;
     friend class Inspector;
     friend class Modifier;
     friend class Transform;
     friend class ControlFlowVisitor;
+    friend class ControlFlowInspector;
+    friend class ControlFlowModifier;
+    friend class ControlFlowTransform;
 };
 
 class Modifier : public virtual Visitor {
@@ -309,6 +314,7 @@ class Modifier : public virtual Visitor {
 #undef DECLARE_VISIT_FUNCTIONS
     void revisit_visited();
     bool visit_in_progress(const IR::Node *) const;
+    friend class ControlFlowModifier;
 };
 
 class Inspector : public virtual Visitor {
@@ -334,6 +340,7 @@ class Inspector : public virtual Visitor {
     bool visit_in_progress(const IR::Node *n) const {
         if (visited->count(n)) return !visited->at(n).done;
         return false; }
+    friend class ControlFlowInspector;
 };
 
 class Transform : public virtual Visitor {
@@ -360,6 +367,7 @@ class Transform : public virtual Visitor {
     bool visit_in_progress(const IR::Node *) const;
     // can only be called usefully from a 'preorder' function (directly or indirectly)
     void prune() { prune_flag = true; }
+    friend class ControlFlowTransform;
 
  protected:
     const IR::Node *transform_child(const IR::Node *child) {
