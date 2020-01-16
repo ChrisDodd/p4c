@@ -7,6 +7,7 @@ set (IR_SRCS
   annotations.cpp
   base.cpp
   bitrange.cpp
+  control_flow_visitor.cpp
   dbprint.cpp
   dbprint-expression.cpp
   dbprint-stmt.cpp
@@ -30,6 +31,7 @@ set (IR_SRCS
 set (IR_HDRS
   annotations.h
   configuration.h
+  control_flow_visitor.h
   dbprint.h
   dump.h
   id.h
@@ -50,6 +52,7 @@ set (IR_HDRS
   pass_utils.h
   vector.h
   visitor.h
+  visitor_impl.h
 )
 
 set (BASE_IR_DEF_FILES

@@ -22,6 +22,9 @@ struct Visitor_Context;
 class Inspector;
 class Modifier;
 class Transform;
+class ControlFlowInspector;
+class ControlFlowModifier;
+class ControlFlowTransform;
 class JSONGenerator;
 class JSONLoader;
 }  // namespace P4
@@ -65,6 +68,9 @@ class Node : public virtual INode {
     friend class ::P4::Inspector;
     friend class ::P4::Modifier;
     friend class ::P4::Transform;
+    friend class ::P4::ControlFlowInspector;
+    friend class ::P4::ControlFlowModifier;
+    friend class ::P4::ControlFlowTransform;
     cstring prepareSourceInfoForJSON(Util::SourceInfo &si, unsigned *lineNumber,
                                      unsigned *columnNumber) const;
 
