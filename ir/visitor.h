@@ -376,10 +376,15 @@ class Visitor {
  private:
     virtual void visitor_const_error();
     const Context *ctxt = nullptr;  // should be readonly to subclasses
+    struct PushContext;
+    class ForwardChildren;
     friend class Inspector;
     friend class Modifier;
     friend class Transform;
     friend class ControlFlowVisitor;
+    friend class ControlFlowInspector;
+    friend class ControlFlowModifier;
+    friend class ControlFlowTransform;
 };
 
 class Modifier : public virtual Visitor {
@@ -413,6 +418,7 @@ class Modifier : public virtual Visitor {
 
  protected:
     bool forceClone = false;  // force clone whole tree even if unchanged
+    friend class ControlFlowModifier;
 };
 
 class Inspector : public virtual Visitor {
@@ -437,6 +443,7 @@ class Inspector : public virtual Visitor {
     bool visit_in_progress(const IR::Node *n) const;
     void visitOnce() const override;
     void visitAgain() const override;
+    friend class ControlFlowInspector;
 };
 
 class Transform : public virtual Visitor {
@@ -470,6 +477,7 @@ class Transform : public virtual Visitor {
         const std::function<void(const IR::Node *from, const IR::Node *to)> &hook) {
         onNodeTransformedHook = hook;
     }
+    friend class ControlFlowTransform;
 
  protected:
     const IR::Node *transform_child(const IR::Node *child) {
