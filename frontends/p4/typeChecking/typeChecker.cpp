@@ -32,7 +32,7 @@ namespace P4 {
 TypeChecking::TypeChecking(ReferenceMap *refMap, TypeMap *typeMap, bool updateExpressions) {
     addPasses({new P4::TypeInference(typeMap, /* readOnly */ true, /* checkArrays */ true,
                                      /* errorOnNullDecls */ true),
-               updateExpressions ? new ApplyTypesToExpressions(typeMap) : nullptr,
+               new ApplyTypesToExpressions(typeMap),
                refMap ? new P4::ResolveReferences(refMap) : nullptr});
     setStopOnError(true);
 }
@@ -41,7 +41,7 @@ TypeChecking::TypeChecking(ReferenceMap *refMap, TypeMap *typeMap, bool updateEx
 TypeChecking::TypeChecking(ReferenceMap *refMap, TypeMap *typeMap, bool updateExpressions) {
     addPasses({new P4::ReadOnlyTypeInference(typeMap, /* checkArrays */ true,
                                              /* errorOnNullDecls */ true),
-               updateExpressions ? new ApplyTypesToExpressions(typeMap) : nullptr,
+               new ApplyTypesToExpressions(typeMap),
                refMap ? new P4::ResolveReferences(refMap) : nullptr});
     setStopOnError(true);
 }
