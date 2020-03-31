@@ -265,7 +265,7 @@ void P4::ControlPlaneAPI::P4RuntimeSymbolTable::computeIdsForSymbols(P4RuntimeSy
         // order in which the names are hashed. This is why we sort the
         // names above.
         std::optional<p4rt_id_t> id = probeForId(
-            nameId, [=](uint32_t nameId) { return (resourceType << 24) | (nameId & 0xffffff); });
+            nameId, [=](uint32_t nameId) { return (resourceType << 24) | (nameId & 0xffff); });
 
         if (!id) {
             ::P4::error(ErrorType::ERR_OVERLIMIT, "No available id to represent %1% in P4Runtime",
