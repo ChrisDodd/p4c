@@ -37,7 +37,6 @@ class SubstituteParameters : public TypeVariableSubstitutionVisitor, public Reso
         CHECK_NULL(subst);
         CHECK_NULL(tvs);
         visitDagOnce = true;
-        setName("SubstituteParameters");
         LOG1("Will substitute " << std::endl << subst << bindings);
     }
     using TypeVariableSubstitutionVisitor::postorder;
