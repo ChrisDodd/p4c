@@ -609,6 +609,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Error* decl) {
     (void)setTypeType(decl);
     for (auto id : *decl->getDeclarations())
         setType(id->getNode(), decl);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -616,6 +617,7 @@ const IR::Node* TypeInference::postorder(IR::Declaration_MatchKind* decl) {
     if (done()) return decl;
     for (auto id : *decl->getDeclarations())
         setType(id->getNode(), IR::Type_MatchKind::get());
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -624,6 +626,7 @@ const IR::Node* TypeInference::postorder(IR::P4Table* table) {
     auto type = new IR::Type_Table(table);
     setType(getOriginal(), type);
     setType(table, type);
+    BUG_CHECK(!readOnly || *table == *getOriginal(), "Unexpected change in TypeInference");
     return table;
 }
 
@@ -648,6 +651,7 @@ const IR::Node* TypeInference::postorder(IR::P4Action* action) {
     }
     setType(getOriginal(), type);
     setType(action, type);
+    BUG_CHECK(!readOnly || *action == *getOriginal(), "Unexpected change in TypeInference");
     return action;
 }
 
@@ -692,6 +696,7 @@ const IR::Node* TypeInference::postorder(IR::Declaration_Variable* decl) {
     }
     setType(decl, type);
     setType(orig, type);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -757,6 +762,7 @@ TypeInference::assignment(const IR::Node* errorPosition, const IR::Type* destTyp
     if (initType == nullptr)
         return sourceExpression;
 
+    auto *orig = sourceExpression;
     auto tvs = unify(errorPosition, destType, initType,
                      "Source expression '%1%' produces a result of type '%2%' which cannot be "
                      "assigned to a left-value with type '%3%'",
@@ -860,7 +866,7 @@ TypeInference::assignment(const IR::Node* errorPosition, const IR::Type* destTyp
         if (cst)
             setCompileTimeConstant(sourceExpression);
     }
-
+    BUG_CHECK(!readOnly || orig == sourceExpression, "Unexpected change in TypeInference");
     return sourceExpression;
 }
 
@@ -909,6 +915,7 @@ const IR::Node* TypeInference::postorder(IR::Declaration_Constant* decl) {
                                             decl->annotations, decl->type, newInit);
     setType(decl, type);
     setType(orig, type);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -1092,6 +1099,7 @@ const IR::Node* TypeInference::preorder(IR::Declaration_Instance* decl) {
         typeError("%1%: cannot allocate objects of type %2%", decl, type);
     }
     prune();
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -1169,6 +1177,7 @@ const IR::Node* TypeInference::preorder(IR::Function* function) {
     setType(function, type);
     visit(function->body);
     prune();
+    BUG_CHECK(!readOnly || *function == *getOriginal(), "Unexpected change in TypeInference");
     return function;
 }
 
@@ -1179,6 +1188,7 @@ const IR::Node* TypeInference::postorder(IR::Argument* arg) {
         return arg;
     setType(getOriginal(), type);
     setType(arg, type);
+    BUG_CHECK(!readOnly || *arg == *getOriginal(), "Unexpected change in TypeInference");
     return arg;
 }
 
@@ -1189,6 +1199,7 @@ const IR::Node* TypeInference::postorder(IR::Method* method) {
         return method;
     setType(getOriginal(), type);
     setType(method, type);
+    BUG_CHECK(!readOnly || *method == *getOriginal(), "Unexpected change in TypeInference");
     return method;
 }
 
@@ -1222,11 +1233,13 @@ const IR::Node* TypeInference::postorder(IR::Type_Type* type) {
 
 const IR::Node* TypeInference::postorder(IR::P4Control* cont) {
     (void)setTypeType(cont, false);
+    BUG_CHECK(!readOnly || *cont == *getOriginal(), "Unexpected change in TypeInference");
     return cont;
 }
 
 const IR::Node* TypeInference::postorder(IR::P4Parser* parser) {
     (void)setTypeType(parser, false);
+    BUG_CHECK(!readOnly || *parser == *getOriginal(), "Unexpected change in TypeInference");
     return parser;
 }
 
@@ -1234,11 +1247,13 @@ const IR::Node* TypeInference::postorder(IR::Type_InfInt* type) {
     if (done()) return type;
     auto tt = new IR::Type_Type(getOriginal<IR::Type>());
     setType(getOriginal(), tt);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_ArchBlock* decl) {
     (void)setTypeType(decl);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -1254,6 +1269,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Package* decl) {
                 typeError("%1%: Invalid package parameter type", p);
         }
     }
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -1271,11 +1287,13 @@ const IR::Node* TypeInference::postorder(IR::Type_Specialized *type) {
         ctx = ctx->parent;
     }
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_SpecializedCanonical *type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1308,11 +1326,13 @@ const IR::Node* TypeInference::postorder(IR::Type_Name* typeName) {
     setType(typeName->path, type->to<IR::Type_Type>()->type);
     setType(getOriginal(), type);
     setType(typeName, type);
+    BUG_CHECK(!readOnly || *typeName == *getOriginal(), "Unexpected change in TypeInference");
     return typeName;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_ActionEnum* type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1320,6 +1340,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Enum* type) {
     auto canon = setTypeType(type);
     for (auto e : *type->getDeclarations())
         setType(e->getNode(), canon);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1331,6 +1352,7 @@ const IR::Node* TypeInference::postorder(IR::Type_SerEnum* type) {
     auto canon = setTypeType(type);
     for (auto e : *type->getDeclarations())
         setType(e->getNode(), canon);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1344,21 +1366,25 @@ const IR::Node* TypeInference::postorder(IR::Type_Var* typeVar) {
     auto tt = new IR::Type_Type(type);
     setType(getOriginal(), tt);
     setType(typeVar, tt);
+    BUG_CHECK(!readOnly || *typeVar == *getOriginal(), "Unexpected change in TypeInference");
     return typeVar;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_List* type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_Tuple* type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_Set* type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1384,6 +1410,7 @@ const IR::Node* TypeInference::postorder(IR::SerEnumMember* member) {
 
     ConstantTypeSubstitution cts(tvs, refMap, typeMap, this);
     member->value = cts.convert(member->value);  // sets type
+    BUG_CHECK(!readOnly || *member == *getOriginal(), "Unexpected change in TypeInference");
     return member;
 }
 
@@ -1402,6 +1429,7 @@ const IR::Node* TypeInference::postorder(IR::P4ValueSet* decl) {
         setType(getOriginal(), tt);
         setType(decl, tt);
     }
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -1441,11 +1469,13 @@ const IR::Node* TypeInference::postorder(IR::Type_Method* type) {
 const IR::Node* TypeInference::postorder(IR::Type_Action* type) {
     (void)setTypeType(type);
     BUG_CHECK(type->typeParameters->size() == 0, "%1%: Generic action?", type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
 const IR::Node* TypeInference::postorder(IR::Type_Base* type) {
     (void)setTypeType(type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1456,6 +1486,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Newtype* type) {
         !argType->is<IR::Type_Boolean>() &&
         !argType->is<IR::Type_Newtype>())
         typeError("%1%: `type' can only be applied to base types", type);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1474,6 +1505,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Typedef* tdecl) {
     }
     setType(getOriginal(), type);
     setType(tdecl, type);
+    BUG_CHECK(!readOnly || *tdecl == *getOriginal(), "Unexpected change in TypeInference");
     return tdecl;
 }
 
@@ -1490,6 +1522,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Stack* type) {
         !etype->is<IR::Type_SpecializedCanonical>())
         typeError("Header stack %1% used with non-header type %2%",
                   type, etype->toString());
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1524,6 +1557,7 @@ const IR::Node* TypeInference::postorder(IR::StructField* field) {
 
     setType(getOriginal(), canon);
     setType(field, canon);
+    BUG_CHECK(!readOnly || *field == *getOriginal(), "Unexpected change in TypeInference");
     return field;
 }
 
@@ -1537,6 +1571,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Header* type) {
                t->is<IR::Type_SerEnum>() || t->is<IR::Type_Boolean>() ||
                 t->is<IR::Type_Var>() || t->is<IR::Type_SpecializedCanonical>(); };
     validateFields(canon, validator);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1554,6 +1589,7 @@ const IR::Node* TypeInference::postorder(IR::Type_Struct* type) {
         t->is<IR::Type_Var>() || t->is<IR::Type_SpecializedCanonical>() ||
         t->is<IR::Type_MatchKind>(); };
     (void)validateFields(canon, validator);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1562,6 +1598,7 @@ const IR::Node* TypeInference::postorder(IR::Type_HeaderUnion *type) {
     auto validator = [] (const IR::Type* t) { return t->is<IR::Type_Header>() ||
         t->is<IR::Type_Var>() || t->is<IR::Type_SpecializedCanonical>(); };
     (void)validateFields(canon, validator);
+    BUG_CHECK(!readOnly || *type == *getOriginal(), "Unexpected change in TypeInference");
     return type;
 }
 
@@ -1605,6 +1642,7 @@ const IR::Node* TypeInference::postorder(IR::Parameter* param) {
     }
     setType(getOriginal(), paramType);
     setType(param, paramType);
+    BUG_CHECK(!readOnly || *param == *getOriginal(), "Unexpected change in TypeInference");
     return param;
 }
 
@@ -1617,6 +1655,7 @@ const IR::Node* TypeInference::postorder(IR::Constant* expression) {
     setType(expression, type);
     setCompileTimeConstant(getOriginal<IR::Expression>());
     setCompileTimeConstant(expression);
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -1626,6 +1665,7 @@ const IR::Node* TypeInference::postorder(IR::StringLiteral* expression) {
     setType(expression, IR::Type_String::get());
     setCompileTimeConstant(expression);
     setCompileTimeConstant(getOriginal<IR::Expression>());
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -1635,6 +1675,7 @@ const IR::Node* TypeInference::postorder(IR::BoolLiteral* expression) {
     setType(expression, IR::Type_Boolean::get());
     setCompileTimeConstant(getOriginal<IR::Expression>());
     setCompileTimeConstant(expression);
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -1812,6 +1853,7 @@ const IR::Node* TypeInference::postorder(IR::Operation_Relation* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -1857,6 +1899,7 @@ const IR::Node* TypeInference::postorder(IR::Concat* expression) {
             setCompileTimeConstant(getOriginal<IR::Expression>());
         }
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -1880,6 +1923,7 @@ const IR::Node* TypeInference::postorder(IR::Key* key) {
     // installing also for the original because we cannot tell which one will survive in the ir
     LOG2("Setting key type to " << dbp(getOriginal()));
     setType(getOriginal(), keyTuple);
+    BUG_CHECK(!readOnly || *key == *getOriginal(), "Unexpected change in TypeInference");
     return key;
 }
 
@@ -1908,6 +1952,7 @@ const IR::Node* TypeInference::preorder(IR::EntriesList* el) {
         }
         // otherwise the type-checking of the keys must have failed
     }
+    BUG_CHECK(!readOnly || *el == *getOriginal(), "Unexpected change in TypeInference");
     return el;
 }
 
@@ -1984,6 +2029,7 @@ const IR::Node* TypeInference::postorder(IR::Entry* entry) {
             return entry;
         }
     }
+    BUG_CHECK(!readOnly || *entry == *getOriginal(), "Unexpected change in TypeInference");
     return entry;
 }
 
@@ -2010,6 +2056,7 @@ const IR::Node* TypeInference::postorder(IR::ListExpression* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2054,6 +2101,7 @@ const IR::Node* TypeInference::postorder(IR::StructExpression* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *result == *getOriginal(), "Unexpected change in TypeInference");
     return result;
 }
 
@@ -2124,6 +2172,7 @@ const IR::Node* TypeInference::postorder(IR::ArrayIndex* expression) {
     }
     setType(getOriginal(), type);
     setType(expression, type);
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2145,6 +2194,7 @@ const IR::Node* TypeInference::binaryBool(const IR::Operation_Binary* expression
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2219,6 +2269,7 @@ const IR::Node* TypeInference::binaryArith(const IR::Operation_Binary* expressio
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2264,6 +2315,7 @@ const IR::Node* TypeInference::unsBinaryArith(const IR::Operation_Binary* expres
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return binaryArith(expression);
 }
 
@@ -2323,6 +2375,7 @@ const IR::Node* TypeInference::shift(const IR::Operation_Binary* expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2391,6 +2444,7 @@ const IR::Node* TypeInference::bitwise(const IR::Operation_Binary* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2465,6 +2519,7 @@ const IR::Node* TypeInference::typeSet(const IR::Operation_Binary* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
 
     return expression;
 }
@@ -2488,6 +2543,7 @@ const IR::Node* TypeInference::postorder(IR::LNot* expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2518,6 +2574,7 @@ const IR::Node* TypeInference::postorder(IR::Neg* expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2577,6 +2634,7 @@ const IR::Node* TypeInference::postorder(IR::Cmpl* expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2672,6 +2730,7 @@ const IR::Node* TypeInference::postorder(IR::Cast* expression) {
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2735,6 +2794,7 @@ const IR::Node* TypeInference::postorder(IR::PathExpression* expression) {
 
     setType(getOriginal(), type);
     setType(expression, type);
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2831,6 +2891,7 @@ const IR::Node* TypeInference::postorder(IR::Slice* expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2879,6 +2940,7 @@ const IR::Node* TypeInference::postorder(IR::Mux* expression) {
             return result;
         }
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2891,6 +2953,7 @@ const IR::Node* TypeInference::postorder(IR::TypeNameExpression* expression) {
     setType(expression, type);
     setCompileTimeConstant(expression);
     setCompileTimeConstant(getOriginal<IR::Expression>());
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -2929,6 +2992,7 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
         setType(expression, methodType);
         setCompileTimeConstant(expression);
         setCompileTimeConstant(getOriginal<IR::Expression>());
+        BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
         return expression;
     }
 
@@ -2961,6 +3025,8 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
                     return expression;
                 setType(getOriginal(), ctype);
                 setType(expression, ctype);
+                BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                          "Unexpected change in TypeInference");
                 return expression;
             }
         }
@@ -2977,6 +3043,8 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
                     return expression;
                 setType(getOriginal(), ctype);
                 setType(expression, ctype);
+                BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                          "Unexpected change in TypeInference");
                 return expression;
             }
         }
@@ -3004,6 +3072,7 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
             setCompileTimeConstant(expression);
             setCompileTimeConstant(getOriginal<IR::Expression>());
         }
+        BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
         return expression;
     }
 
@@ -3016,6 +3085,7 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
         learn(methodType, this);
         setType(getOriginal(), methodType);
         setType(expression, methodType);
+        BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
         return expression;
     }
 
@@ -3035,14 +3105,20 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
                 setLeftValue(expression);
                 setLeftValue(getOriginal<IR::Expression>());
             }
+            BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                      "Unexpected change in TypeInference");
             return expression;
         } else if (member == IR::Type_Stack::arraySize) {
             setType(getOriginal(), IR::Type_Bits::get(32));
             setType(expression, IR::Type_Bits::get(32));
+            BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                      "Unexpected change in TypeInference");
             return expression;
         } else if (member == IR::Type_Stack::lastIndex) {
             setType(getOriginal(), IR::Type_Bits::get(32, false));
             setType(expression, IR::Type_Bits::get(32, false));
+            BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                      "Unexpected change in TypeInference");
             return expression;
         } else if (member == IR::Type_Stack::push_front ||
                    member == IR::Type_Stack::pop_front) {
@@ -3065,6 +3141,8 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
                 return expression;
             setType(getOriginal(), canon);
             setType(expression, canon);
+            BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                      "Unexpected change in TypeInference");
             return expression;
         }
     }
@@ -3085,6 +3163,8 @@ const IR::Node* TypeInference::postorder(IR::Member* expression) {
                 typeError("%1%: Invalid enum tag", expression);
                 setType(getOriginal(), type);
                 setType(expression, type); }
+            BUG_CHECK(!readOnly || *expression == *getOriginal(),
+                      "Unexpected change in TypeInference");
             return expression;
         }
     }
@@ -3215,6 +3295,7 @@ TypeInference::actionCall(bool inActionList,
 
     LOG2("Converted action " << actionCall);
     setType(actionCall, resultType);
+    BUG_CHECK(!readOnly || *actionCall == *getOriginal(), "Unexpected change in TypeInference");
     return actionCall;
 }
 
@@ -3467,8 +3548,10 @@ const IR::Node* TypeInference::postorder(IR::MethodCallExpression* expression) {
             typeError("%1%: no function calls allowed in this context", expression);
             return expression;
         }
+        BUG_CHECK(!readOnly || *result == *getOriginal(), "Unexpected change in TypeInference");
         return result;
     }
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -3516,6 +3599,7 @@ const IR::Node* TypeInference::postorder(IR::ConstructorCallExpression* expressi
 
     setCompileTimeConstant(expression);
     setCompileTimeConstant(getOriginal<IR::Expression>());
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -3581,6 +3665,7 @@ const IR::Node* TypeInference::postorder(IR::This* expression) {
     auto type = getType(decl);
     setType(expression, type);
     setType(getOriginal(), type);
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -3591,6 +3676,7 @@ const IR::Node* TypeInference::postorder(IR::DefaultExpression* expression) {
     }
     setCompileTimeConstant(expression);
     setCompileTimeConstant(getOriginal<IR::Expression>());
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
@@ -3658,12 +3744,14 @@ const IR::Node* TypeInference::postorder(IR::SelectExpression* expression) {
                                               std::move(vec));
     setType(expression, IR::Type_State::get());
     setType(getOriginal(), IR::Type_State::get());
+    BUG_CHECK(!readOnly || *expression == *getOriginal(), "Unexpected change in TypeInference");
     return expression;
 }
 
 const IR::Node* TypeInference::postorder(IR::AttribLocal* local) {
     setType(local, local->type);
     setType(getOriginal(), local->type);
+    BUG_CHECK(!readOnly || *local == *getOriginal(), "Unexpected change in TypeInference");
     return local;
 }
 
@@ -3677,6 +3765,7 @@ const IR::Node* TypeInference::postorder(IR::IfStatement* conditional) {
     if (!type->is<IR::Type_Boolean>())
         typeError("Condition of %1% does not evaluate to a bool but %2%",
                   conditional, type->toString());
+    BUG_CHECK(!readOnly || *conditional == *getOriginal(), "Unexpected change in TypeInference");
     return conditional;
 }
 
@@ -3735,6 +3824,7 @@ const IR::Node* TypeInference::postorder(IR::SwitchStatement* stat) {
             }
         }
     }
+    BUG_CHECK(!readOnly || *stat == *getOriginal(), "Unexpected change in TypeInference");
     return stat;
 }
 
@@ -3770,6 +3860,7 @@ const IR::Node* TypeInference::postorder(IR::ReturnStatement* statement) {
     auto init = assignment(statement, returnType, statement->expression);
     if (init != statement->expression)
         statement->expression = init;
+    BUG_CHECK(!readOnly || *statement == *getOriginal(), "Unexpected change in TypeInference");
     return statement;
 }
 
@@ -3788,6 +3879,7 @@ const IR::Node* TypeInference::postorder(IR::AssignmentStatement* assign) {
     auto newInit = assignment(assign, ltype, assign->right);
     if (newInit != assign->right)
         assign = new IR::AssignmentStatement(assign->srcInfo, assign->left, newInit);
+    BUG_CHECK(!readOnly || *assign == *getOriginal(), "Unexpected change in TypeInference");
     return assign;
 }
 
@@ -3799,6 +3891,7 @@ const IR::Node* TypeInference::postorder(IR::ActionListElement* elem) {
 
     setType(elem, type);
     setType(getOriginal(), type);
+    BUG_CHECK(!readOnly || *elem == *getOriginal(), "Unexpected change in TypeInference");
     return elem;
 }
 
@@ -3806,6 +3899,7 @@ const IR::Node* TypeInference::postorder(IR::SelectCase* sc) {
     auto type = getType(sc->state);
     if (type != nullptr && type != IR::Type_State::get())
         typeError("%1% must be state", sc);
+    BUG_CHECK(!readOnly || *sc == *getOriginal(), "Unexpected change in TypeInference");
     return sc;
 }
 
@@ -3826,6 +3920,7 @@ const IR::Node* TypeInference::postorder(IR::KeyElement* elem) {
                   IR::Type_MatchKind::get()->toString());
     if (isCompileTimeConstant(elem->expression) && !readOnly)
         warn(ErrorType::WARN_IGNORE_PROPERTY, "%1%: constant key element", elem);
+    BUG_CHECK(!readOnly || *elem == *getOriginal(), "Unexpected change in TypeInference");
     return elem;
 }
 
@@ -3951,6 +4046,7 @@ const IR::Node* TypeInference::postorder(IR::Property* prop) {
             }
         }
     }
+    BUG_CHECK(!readOnly || *prop == *getOriginal(), "Unexpected change in TypeInference");
     return prop;
 }
 
