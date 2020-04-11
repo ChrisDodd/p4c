@@ -25,6 +25,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::IfStatement *conditional)
     if (!type->is<IR::Type_Boolean>())
         typeError("Condition of %1% does not evaluate to a bool but %2%", conditional,
                   type->toString());
+    BUG_CHECK(!readOnly || *conditional == *getOriginal(), "Unexpected change in TypeInference");
     return conditional;
 }
 
@@ -88,6 +89,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::SwitchStatement *stat) {
         }
         if (changed) stat = sclone;
     }
+    BUG_CHECK(!readOnly || *stat == *getOriginal(), "Unexpected change in TypeInference");
     return stat;
 }
 
@@ -122,6 +124,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::ReturnStatement *statemen
     auto init = assignment(statement, returnType, statement->expression);
     if (init != statement->expression)
         statement = new IR::ReturnStatement(statement->srcInfo, init);
+    BUG_CHECK(!readOnly || *statement == *getOriginal(), "Unexpected change in TypeInference");
     return statement;
 }
 
@@ -139,6 +142,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::AssignmentStatement *assi
     auto newInit = assignment(assign, ltype, assign->right);
     if (newInit != assign->right)
         assign = new IR::AssignmentStatement(assign->srcInfo, assign->left, newInit);
+    BUG_CHECK(!readOnly || *assign == *getOriginal(), "Unexpected change in TypeInference");
     return assign;
 }
 
@@ -174,6 +178,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::ForInStatement *forin) {
               "%1%Typechecking does not support iteration over this collection of type %2%",
               forin->collection->srcInfo, ctype);
     }
+    BUG_CHECK(!readOnly || *forin == *getOriginal(), "Unexpected change in TypeInference");
     return forin;
 }
 
@@ -184,12 +189,14 @@ const IR::Node *TypeInferenceBase::postorder(const IR::ActionListElement *elem) 
 
     setType(elem, type);
     setType(getOriginal(), type);
+    BUG_CHECK(!readOnly || *elem == *getOriginal(), "Unexpected change in TypeInference");
     return elem;
 }
 
 const IR::Node *TypeInferenceBase::postorder(const IR::SelectCase *sc) {
     auto type = getType(sc->state);
     if (type != nullptr && type != IR::Type_State::get()) typeError("%1% must be state", sc);
+    BUG_CHECK(!readOnly || *sc == *getOriginal(), "Unexpected change in TypeInference");
     return sc;
 }
 
@@ -208,6 +215,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::KeyElement *elem) {
                   IR::Type_MatchKind::get()->toString());
     if (isCompileTimeConstant(elem->expression) && !readOnly)
         warn(ErrorType::WARN_IGNORE_PROPERTY, "%1%: constant key element", elem);
+    BUG_CHECK(!readOnly || *elem == *getOriginal(), "Unexpected change in TypeInference");
     return elem;
 }
 
@@ -338,7 +346,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Property *prop) {
             }
         }
     }
-
+    BUG_CHECK(!readOnly || *prop == *getOriginal(), "Unexpected change in TypeInference");
     return prop;
 }
 

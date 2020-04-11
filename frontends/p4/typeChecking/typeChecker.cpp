@@ -494,6 +494,7 @@ TypeInferenceBase::PreorderResult TypeInferenceBase::preorder(const IR::P4Progra
 const IR::Node *TypeInferenceBase::postorder(const IR::Declaration_MatchKind *decl) {
     if (done()) return decl;
     for (auto id : *decl->getDeclarations()) setType(id->getNode(), IR::Type_MatchKind::get());
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -549,6 +550,7 @@ const IR::Expression *TypeInferenceBase::assignment(const IR::Node *errorPositio
     const IR::Type *initType = getType(sourceExpression);
     if (initType == nullptr) return sourceExpression;
 
+    auto *orig = sourceExpression;
     auto tvs = unifyCast(errorPosition, destType, initType,
                          "Source expression '%1%' produces a result of type '%2%' which cannot be "
                          "assigned to a left-value with type '%3%'",
@@ -691,7 +693,7 @@ const IR::Expression *TypeInferenceBase::assignment(const IR::Node *errorPositio
             if (cst) setCompileTimeConstant(sourceExpression);
         }
     }
-
+    BUG_CHECK(!readOnly || orig == sourceExpression, "Unexpected change in TypeInference");
     return sourceExpression;
 }
 
@@ -936,6 +938,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Argument *arg) {
     if (type == nullptr) return arg;
     setType(getOriginal(), type);
     setType(arg, type);
+    BUG_CHECK(!readOnly || *arg == *getOriginal(), "Unexpected change in TypeInference");
     return arg;
 }
 

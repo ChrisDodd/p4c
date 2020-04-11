@@ -26,6 +26,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::P4Table *table) {
     auto type = new IR::Type_Table(table);
     setType(getOriginal(), type);
     setType(table, type);
+    BUG_CHECK(!readOnly || *table == *getOriginal(), "Unexpected change in TypeInference");
     return table;
 }
 
@@ -98,6 +99,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::P4Action *action) {
     }
     setType(getOriginal(), type);
     setType(action, type);
+    BUG_CHECK(!readOnly || *action == *getOriginal(), "Unexpected change in TypeInference");
     return action;
 }
 
@@ -140,6 +142,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Declaration_Variable *dec
     }
     setType(decl, type);
     setType(orig, type);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -162,6 +165,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Declaration_Constant *dec
                                             decl->type, newInit);
     setType(decl, type);
     setType(orig, type);
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
@@ -294,6 +298,7 @@ TypeInferenceBase::PreorderResult TypeInferenceBase::preorderDeclarationInstance
     } else {
         typeError("%1%: cannot allocate objects of type %2%", decl, type);
     }
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return {decl, true};
 }
 
@@ -316,7 +321,7 @@ TypeInferenceBase::PreorderResult TypeInferenceBase::preorderFunctionImpl(Node *
     setType(getOriginal(), type);
     setType(function, type);
     visit(function->body);
-
+    BUG_CHECK(!readOnly || *function == *getOriginal(), "Unexpected change in TypeInference");
     return {function, true};
 }
 
@@ -345,6 +350,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Method *method) {
     }
     setType(getOriginal(), type);
     setType(method, type);
+    BUG_CHECK(!readOnly || *method == *getOriginal(), "Unexpected change in TypeInference");
     return method;
 }
 
@@ -422,6 +428,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::SerEnumMember *member) {
     if (member->value != newValue)
         member = new IR::SerEnumMember(member->srcInfo, member->name, newValue);
     if (!typeMap->getType(member)) setType(member, getTypeType(serEnum));
+    BUG_CHECK(!readOnly || *member == *getOriginal(), "Unexpected change in TypeInference");
     return member;
 }
 
@@ -444,6 +451,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::P4ValueSet *decl) {
         setType(getOriginal(), tt);
         setType(decl, tt);
     }
+    BUG_CHECK(!readOnly || *decl == *getOriginal(), "Unexpected change in TypeInference");
     return decl;
 }
 
