@@ -395,12 +395,9 @@ void IrMethod::generate_impl(std::ostream &out) const {
 ////////////////////////////////////////////////////////////////////////////////////
 
 void IrApply::generate_hdr(std::ostream &out) const {
-    out << IrClass::indent << "IRNODE_DECLARE_APPLY_OVERLOAD(" << clss->name << ")" << std::endl;
 }
 
 void IrApply::generate_impl(std::ostream &out) const {
-    out << "IRNODE_DEFINE_APPLY_OVERLOAD(" << clss->containedIn << clss->name << ", , )"
-        << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -474,6 +471,10 @@ void IrClass::generate_hdr(std::ostream &out) const {
         if (e->access != access) out << (access = e->access);
         e->generate_hdr(out);
     }
+    if (access != IrElement::Public)
+        out << (access = IrElement::Public);
+    if (kind != NodeKind::Interface && kind != NodeKind::Nested)
+        out << IrClass::indent << "IRNODE_DECLARE_APPLY_OVERLOAD(" << name << ")" << std::endl;
 
     if (kind != NodeKind::Interface && kind != NodeKind::Nested)
         out << indent << "IRNODE" << (kind == NodeKind::Abstract ? "_ABSTRACT" : "") << "_SUBCLASS("
@@ -497,6 +498,8 @@ void IrClass::generate_hdr(std::ostream &out) const {
 
 void IrClass::generate_impl(std::ostream &out) const {
     for (auto e : elements) e->generate_impl(out);
+    if (kind != NodeKind::Interface && kind != NodeKind::Nested)
+        out << "IRNODE_DEFINE_APPLY_OVERLOAD(" << containedIn << name << ", , )" << std::endl;
 }
 
 void IrClass::computeConstructorArguments(IrClass::ctor_args_t &args) const {
