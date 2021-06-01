@@ -201,7 +201,7 @@ def main():
     )
     p4c_default_arch = os.environ.get("P4C_DEFAULT_ARCH")
     if p4c_default_arch is None:
-        p4c_default_arch = "v1model"
+        p4c_default_arch = "default"
     parser.add_argument(
         "-a",
         "--arch",
