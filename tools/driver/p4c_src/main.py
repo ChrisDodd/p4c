@@ -113,7 +113,7 @@ def main():
                         action="store", default="bmv2")
     parser.add_argument("-a", "--arch", dest="arch",
                         help="specify target architecture",
-                        action="store", default="v1model")
+                        action="store", default="default")
     parser.add_argument("-c", "--compile", dest="run_all",
                         help="Only run the preprocess, compile, and assemble"
                         " steps", action="store_true", default=True)

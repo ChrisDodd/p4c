@@ -16,6 +16,8 @@ limitations under the License.
 #ifndef __PSA_P4__
 #define __PSA_P4__
 
+@arch("psa")
+
 /**
  *   P4-16 declaration of the Portable Switch Architecture
  */

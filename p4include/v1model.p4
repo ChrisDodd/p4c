@@ -54,6 +54,7 @@ match_kind {
     selector
 }
 
+@arch("v1model")
 const bit<32> __v1model_version = V1MODEL_VERSION;
 
 #if V1MODEL_VERSION >= 20200408
