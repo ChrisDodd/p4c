@@ -143,7 +143,7 @@ const IR::Node *DoReplaceSelectRange::postorder(IR::SelectExpression *e) {
     if (!signedIndicesToReplace.empty()) {
         IR::Vector<IR::Expression> newSelectList;
         size_t idx = 0;
-        for (auto *expr : e->select->components) {
+        for (const IR::Expression *expr : e->select->components) {
             if (signedIndicesToReplace.count(idx)) {
                 auto eType = expr->type->to<IR::Type_Bits>();
                 BUG_CHECK(eType,

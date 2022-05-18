@@ -86,7 +86,7 @@ void collectControlSymbols(P4RuntimeSymbolTable &symbols, P4RuntimeArchHandlerIf
     CHECK_NULL(refMap);
     CHECK_NULL(typeMap);
 
-    const auto *control = controlBlock->container;
+    const IR::P4Control *control = controlBlock->container;
     CHECK_NULL(control);
 
     forAllMatching<IR::P4Action>(&control->controlLocals, [&](const IR::P4Action *action) {
@@ -132,10 +132,10 @@ void collectTableSymbols(P4RuntimeSymbolTable &symbols, P4RuntimeArchHandlerIfac
 void collectParserSymbols(P4RuntimeSymbolTable &symbols, const IR::ParserBlock *parserBlock) {
     CHECK_NULL(parserBlock);
 
-    const auto *parser = parserBlock->container;
+    const IR::P4Parser *parser = parserBlock->container;
     CHECK_NULL(parser);
 
-    for (const auto *s : parser->parserLocals) {
+    for (const IR::Declaration *s : parser->parserLocals) {
         if (const auto *inst = s->to<IR::P4ValueSet>()) {
             symbols.add(P4RuntimeSymbolType::VALUE_SET(), inst);
         }

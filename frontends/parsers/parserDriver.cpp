@@ -335,7 +335,7 @@ IR::Vector<IR::Annotation> V1ParserDriver::takePragmasAsVector() {
 }
 
 const IR::Annotations *V1ParserDriver::takePragmasAsAnnotations() {
-    if (currentPragmas.empty()) return IR::Annotations::empty;
+    if (currentPragmas.empty()) return &IR::Annotations::empty;
     auto *rv = new IR::Annotations(currentPragmas);
     currentPragmas.clear();
     return rv;

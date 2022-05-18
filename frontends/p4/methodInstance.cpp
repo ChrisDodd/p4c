@@ -45,7 +45,8 @@ MethodInstance *MethodInstance::resolve(const IR::MethodCallExpression *mce,
     // mt can be Type_Method or Type_Action
     if (mce->method->is<IR::Member>()) {
         auto mem = mce->method->to<IR::Member>();
-        auto basetype = typeMap ? typeMap->getType(mem->expr) : mem->expr->type;
+        const IR::Type *basetype = mem->expr->type;
+        if (typeMap) basetype = typeMap->getType(mem->expr);
         if (basetype == nullptr) {
             if (useExpressionType)
                 basetype = mem->expr->type;
@@ -73,7 +74,8 @@ MethodInstance *MethodInstance::resolve(const IR::MethodCallExpression *mce,
                 decl = refMap->getDeclaration(th, true);
             } else if (auto pe = mem->expr->to<IR::PathExpression>()) {
                 decl = refMap->getDeclaration(pe->path, true);
-                type = typeMap ? typeMap->getType(decl->getNode()) : pe->type;
+                type = pe->type;
+                if (typeMap) type = typeMap->getType(decl->getNode());
             } else if (auto mc = mem->expr->to<IR::MethodCallExpression>()) {
                 auto mi = resolve(mc, refMap, typeMap, useExpressionType);
                 decl = mi->object;
@@ -81,7 +83,8 @@ MethodInstance *MethodInstance::resolve(const IR::MethodCallExpression *mce,
             } else if (auto cce = mem->expr->to<IR::ConstructorCallExpression>()) {
                 auto cc = ConstructorCall::resolve(cce, refMap, typeMap);
                 decl = cc->to<ExternConstructorCall>()->type;
-                type = typeMap ? typeMap->getTypeType(cce->constructedType, true) : cce->type;
+                type = cce->type;
+                if (typeMap) type = typeMap->getTypeType(cce->constructedType, true);
             } else {
                 BUG("unexpected expression %1% resolving method instance", mem->expr);
             }
@@ -131,7 +134,8 @@ const IR::P4Action *ActionCall::specialize(ReferenceMap *refMap) const {
 
 ConstructorCall *ConstructorCall::resolve(const IR::ConstructorCallExpression *cce,
                                           DeclarationLookup *refMap, TypeMap *typeMap) {
-    auto ct = typeMap ? typeMap->getTypeType(cce->constructedType, true) : cce->type;
+    const IR::Type *ct = cce->type;
+    if (typeMap) ct = typeMap->getTypeType(cce->constructedType, true);
     ConstructorCall *result;
     const IR::Vector<IR::Type> *typeArguments;
     const IR::Type_Name *type;
@@ -175,7 +179,8 @@ ConstructorCall *ConstructorCall::resolve(const IR::ConstructorCallExpression *c
 
 Instantiation *Instantiation::resolve(const IR::Declaration_Instance *instance, DeclarationLookup *,
                                       TypeMap *typeMap) {
-    auto type = typeMap ? typeMap->getTypeType(instance->type, true) : instance->type;
+    const IR::Type *type = instance->type;
+    if (typeMap) type = typeMap->getTypeType(instance->type, true);
     auto simpleType = type;
     const IR::Vector<IR::Type> *typeArguments;
 

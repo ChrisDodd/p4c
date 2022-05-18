@@ -220,7 +220,7 @@ class Constant : Literal {
     Constant operator-() const;
 #end
     toString {
-        const IR::Type_Bits* tb = dynamic_cast<const IR::Type_Bits*>(type);
+        const IR::Type_Bits* tb = type ? type->to<IR::Type_Bits>() : nullptr;
         unsigned width;
         bool sign;
         if (tb == nullptr) {
@@ -286,7 +286,7 @@ class Slice : Operation_Ternary {
         if (type->is<Type::Unknown>() && e1 && e1->is<Constant>() && e2 && e2->is<Constant>())
             type = IR::Type::Bits::get(getH() - getL() + 1); }
     // make a slice, folding slices on slices and slices on constants automatically
-    static Expression make(Expression a, unsigned hi, unsigned lo);
+    static Expression make(const Expression *a, unsigned hi, unsigned lo);
 }
 
 class Member : Operation_Unary {
@@ -350,7 +350,7 @@ class This : Expression {
     int id = nextId++;
     toString { return "this"; }
  private:
-    static int nextId;
+    static int nextId = 0;
 }
 
 class Cast : Operation_Unary {
@@ -384,10 +384,11 @@ class MethodCallExpression : Expression {
     optional Vector<Argument>   arguments = new Vector<Argument>;
     toString{ return method->toString(); }
     validate{ typeArguments->check_null(); arguments->check_null(); }
-    MethodCallExpression(Util::SourceInfo si, IR::ID m, const std::initializer_list<Argument> &a)
+    MethodCallExpression(Util::SourceInfo si, IR::ID m,
+                         const std::initializer_list<const Argument *> &a)
             : Expression(si), method(new PathExpression(m)), arguments(new Vector<Argument>(a)) {}
     MethodCallExpression(Util::SourceInfo si, Expression m,
-                         const std::initializer_list<Argument> &a)
+                         const std::initializer_list<const Argument *> &a)
     : Expression(si), method(m), arguments(new Vector<Argument>(a)) {}
     MethodCallExpression(Expression m, const std::initializer_list<const Expression *> &a)
     : method(m), arguments(nullptr)  {

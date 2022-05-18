@@ -30,6 +30,13 @@ limitations under the License.
 #include "lib/source_file.h"
 #include "lib/stringify.h"
 
+#if !HAVE_LIBGC
+namespace IR {
+template <class T>
+class shared_ptr;
+}
+#endif /* !HAVE_LIBGC */
+
 namespace priv {
 
 // All these methods return std::string because this is the native format of boost::format
@@ -79,6 +86,12 @@ ErrorMessage error_helper(boost::format &f, ErrorMessage out, const big_int &t, 
 template <typename T, class... Args>
 auto error_helper(boost::format &f, ErrorMessage out, const T &t, Args... args) ->
     typename std::enable_if<std::is_arithmetic<T>::value, ErrorMessage>::type;
+
+#if !HAVE_LIBGC
+template <typename T, class... Args>
+ErrorMessage error_helper(boost::format &f, ErrorMessage out, const IR::shared_ptr<T> &t,
+                          Args... args);
+#endif /* !HAVE_LIBGC */
 
 // actual implementations
 
@@ -146,6 +159,16 @@ auto error_helper(boost::format &f, ErrorMessage out, const T &t, Args... args) 
     if (info.isValid()) out.locations.push_back(info);
     return error_helper(f % t.toString(), out, std::forward<Args>(args)...);
 }
+
+#if !HAVE_LIBGC
+template <typename T, class... Args>
+ErrorMessage error_helper(boost::format &f, ErrorMessage out, const IR::shared_ptr<T> &t,
+                          Args... args) {
+    auto info = t->getSourceInfo();
+    if (info.isValid()) out.locations.push_back(info);
+    return error_helper(f % t->toString(), out, std::forward<Args>(args)...);
+}
+#endif /* !HAVE_LIBGC */
 
 }  // namespace priv
 

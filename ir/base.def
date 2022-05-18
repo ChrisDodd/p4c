@@ -25,10 +25,10 @@ interface CompileTimeValue {
 
 /// Base class for P4 types
 abstract Type {
-    static const cstring minSizeInBits;
-    static const cstring minSizeInBytes;
-    static const cstring maxSizeInBits;
-    static const cstring maxSizeInBytes;
+    static const cstring minSizeInBits = "minSizeInBits";
+    static const cstring minSizeInBytes = "minSizeInBytes";
+    static const cstring maxSizeInBits = "maxSizeInBits";
+    static const cstring maxSizeInBytes = "maxSizeInBytes";
 #emit
     typedef Type_Unknown        Unknown;
     typedef Type_Boolean        Boolean;
@@ -41,27 +41,27 @@ abstract Type {
     virtual int width_bits() const { return 0; }
     /// When possible returns the corresponding type that can be inserted
     /// in a P4 program; may return a Type_Name
-    virtual const Type* getP4Type() const = 0;
+    virtual const Type *getP4Type() const = 0;
 }
 
 /// Implemented by all types that may be generic:
 /// Control, Extern, Method, Package, and Parser
 interface IMayBeGenericType {
     /// Allows the retrieval of type parameters
-    virtual const TypeParameters* getTypeParameters() const = 0;
+    virtual const TypeParameters *getTypeParameters() const = 0;
 }
 
 /// Implemented by objects with an 'apply' method: Parser, Control, Table
 interface IApply {
-    static const cstring applyMethodName;
+    static const cstring applyMethodName = "apply";
     /// @returns the type signature of the apply method
-    virtual const Type_Method* getApplyMethodType() const = 0;
-    virtual const ParameterList* getApplyParameters() const = 0;
+    virtual const Type_Method *getApplyMethodType() const = 0;
+    virtual const ParameterList *getApplyParameters() const = 0;
 }
 
 /// base class for namespaces
 interface INamespace {
-    virtual Util::Enumerator<IDeclaration> *getDeclarations() const = 0;
+    virtual Util::Enumerator<const IDeclaration *> *getDeclarations() const = 0;
 }
 
 /// Does not allow two declarations with the same name
@@ -72,7 +72,7 @@ interface ISimpleNamespace : INamespace {
 /// A general namespace can have multiple declarations with the same name
 /// E.g., an extern can have multiple methods with the same name.
 interface IGeneralNamespace : INamespace {
-    virtual Util::Enumerator<IDeclaration>* getDeclsByName(cstring name) const;
+    virtual Util::Enumerator<const IDeclaration *>* getDeclsByName(cstring name) const;
     /// prints an error if it finds duplicate names
     void checkDuplicateDeclarations() const;
     validate{ checkDuplicateDeclarations(); }
@@ -82,7 +82,7 @@ interface IGeneralNamespace : INamespace {
 // Note that it might also contain a Simple or General namespace nested in these
 interface INestedNamespace : INamespace {
     virtual std::vector<INamespace> getNestedNamespaces() const = 0;
-    Util::Enumerator<IDeclaration> *getDeclarations() const;
+    Util::Enumerator<const IDeclaration *> *getDeclarations() const;
 }
 
 /// Interface implemented by something that can be called
@@ -92,7 +92,7 @@ interface IFunctional {
     virtual ParameterList getParameters() const = 0;
     /// Returns true if the parameters can be matched with the
     /// supplied arguments.
-    bool callMatches(Vector<Argument> arguments) const;
+    bool callMatches(const Vector<Argument> *arguments) const;
 }
 
 /// Implemented by things that look like type variables
@@ -106,7 +106,7 @@ interface ITypeVar {
 interface IContainer : IMayBeGenericType, IDeclaration, IFunctional {
     virtual Type getType() const = 0;
     /// The type of the constructor as a method
-    virtual Type_Method getConstructorMethodType() const = 0;
+    virtual const Type_Method *getConstructorMethodType() const = 0;
     virtual ParameterList getConstructorParameters() const = 0;
     // The IFunctional interface
     ParameterList getParameters() const { return getConstructorParameters(); }
@@ -115,13 +115,15 @@ interface IContainer : IMayBeGenericType, IDeclaration, IFunctional {
 /// This represents a primitive type
 /// (called base type in the spec)
 abstract Type_Base : Type {
-    const Type* getP4Type() const override { return this; }
+    const Type *getP4Type() const override { return this; }
 }
 
 /// This is needed by Expression
 class Type_Unknown : Type_Base {
 #nodbprint
-    static Type_Unknown get();
+    static Type_Unknown get() {
+        static Type_Unknown _singleton;
+        return &_singleton; }
     toString{ return "Unknown type"; }
 }
 
@@ -136,7 +138,7 @@ abstract Declaration : StatOrDecl, IDeclaration {
     ID getName() const override { return name; }
     equiv { return name == a.name; /* ignore declid */ }
  private:
-    static int nextId;
+    static int nextId = 0;
  public:
     toString { return externalName(); }
 }
@@ -152,10 +154,10 @@ abstract Type_Declaration : Type, IDeclaration {
     ID getName() const override { return name; }
     equiv { return name == a.name; /* ignore declid */ }
  private:
-    static int nextId;
+    static int nextId = 0;
  public:
     toString { return externalName(); }
-    const Type* getP4Type() const override { return new Type_Name(name); }
+    const Type *getP4Type() const override { return new Type_Name(name); }
 }
 
 /// base class for expressions
@@ -274,21 +276,21 @@ class Annotation {
     : name(n), needsParsing(false), structured(structured) {
         expr.push_back(new StringLiteral(v)); }
 
-    static const cstring nameAnnotation;  /// Indicates the control-plane name.
-    static const cstring tableOnlyAnnotation;  /// Action cannot be a default_action.
-    static const cstring defaultOnlyAnnotation;  /// action can only be a default_action.
-    static const cstring atomicAnnotation;  /// Code should be executed atomically.
-    static const cstring hiddenAnnotation;  /// Object should not be exposed to the control-plane.
-    static const cstring lengthAnnotation;  /// P4-14 annotation for varbit fields.
-    static const cstring optionalAnnotation;  /// Optional parameter annotation
-    static const cstring pkginfoAnnotation;  /// Package documentation annotation.
-    static const cstring deprecatedAnnotation;  /// Deprecation annotation.
-    static const cstring synchronousAnnotation;  /// Synchronous annotation.
-    static const cstring pureAnnotation;  /// extern function/method annotation.
-    static const cstring noSideEffectsAnnotation;  /// extern function/method annotation.
-    static const cstring noWarnAnnotation;  /// noWarn annotation.
-    static const cstring matchAnnotation;  /// Match annotation (for value sets).
-    static const cstring fieldListAnnotation;  /// Used for recirculate, etc.
+    static const cstring nameAnnotation = "name";  /// Indicates the control-plane name.
+    static const cstring tableOnlyAnnotation = "tableonly";  /// Action cannot be a default_action.
+    static const cstring defaultOnlyAnnotation = "defaultonly";  /// action can only be a default_action.
+    static const cstring atomicAnnotation = "atomic";  /// Code should be executed atomically.
+    static const cstring hiddenAnnotation = "hidden";  /// Object should not be exposed to the control-plane.
+    static const cstring lengthAnnotation = "length";  /// P4-14 annotation for varbit fields.
+    static const cstring optionalAnnotation = "optional";  /// Optional parameter annotation
+    static const cstring pkginfoAnnotation = "pkginfo";  /// Package documentation annotation.
+    static const cstring deprecatedAnnotation = "deprecated";  /// Deprecation annotation.
+    static const cstring synchronousAnnotation = "synchronous";  /// Synchronous annotation.
+    static const cstring pureAnnotation = "pure";  /// extern function/method annotation.
+    static const cstring noSideEffectsAnnotation = "noSideEffects";  /// extern function/method annotation.
+    static const cstring noWarnAnnotation = "noWarn";  /// noWarn annotation.
+    static const cstring matchAnnotation = "match";  /// Match annotation (for value sets).
+    static const cstring fieldListAnnotation = "field_list";  /// Used for recirculate, etc.
     toString{ return cstring("@") + name; }
     validate{
         BUG_CHECK(!name.name.isNullOrEmpty(), "empty annotation name");
@@ -329,25 +331,27 @@ class Annotation {
 class Annotations {
     optional inline Vector<Annotation> annotations;
     Annotations { if (!srcInfo && !annotations.empty()) srcInfo = annotations[0]->srcInfo; }
-    static Annotations *empty;  // FIXME -- should be const
+    static inline const Annotations empty;
     size_t size() const { return annotations.size(); }
     // Get the annotation with the specified name or nullptr.
     // There should be at most one annotation with this name.
-    Annotation getSingle(cstring name) const { return get(annotations, name); }
-    Annotations add(Annotation annot) {
+    const Annotation *getSingle(cstring name) const { return get(annotations, name); }
+    const Annotations *add(Annotation annot) {
         if (annot->srcInfo) srcInfo += annot->srcInfo;
         annotations.push_back(annot);
         return this; }
-    Annotations add(Annotation annot) const { return clone()->add(annot); }
-    Annotations addAnnotation(cstring name, Expression expr, bool structured = false) {
+    const Annotations *add(Annotation annot) const { return clone()->add(annot); }
+    const Annotations *addAnnotation(cstring name, Expression expr, bool structured = false) {
         return add(new Annotation(name, Vector<Expression>(expr), structured)); }
-    Annotations addAnnotation(cstring name, Expression expr, bool structured = false) const {
+    const Annotations *addAnnotation(cstring name, Expression expr, bool structured = false) const {
         return add(new Annotation(name, Vector<Expression>(expr), structured)); }
     // Add annotation if another annotation with the same name is not
     // already present.
-    Annotations addAnnotationIfNew(cstring name, Expression expr, bool structured = false) const {
-        return getSingle(name) ? this : addAnnotation(name, expr, structured); }
-    Annotations append(Annotations other) {
+    const Annotations *addAnnotationIfNew(cstring name, Expression expr,
+                                          bool structured = false) const {
+        if (getSingle(name)) return this;
+        return addAnnotation(name, expr, structured); }
+    const Annotations *append(Annotations other) {
         if (other == nullptr)
             return this;
         for (auto a : other->annotations)
@@ -356,7 +360,7 @@ class Annotations {
     }
     // If annotations with the same name are already present, remove them.
     // Add this annotation.
-    Annotations addOrReplace(cstring name, Expression expr, bool structured = false) const {
+    const Annotations *addOrReplace(cstring name, Expression expr, bool structured = false) const {
         auto rv = clone();
         remove_if(rv->annotations, [name](const Annotation *a)->bool { return a->name == name; });
         rv->annotations.push_back(new Annotation(name, Vector<Expression>(expr), structured));
@@ -364,8 +368,8 @@ class Annotations {
 #emit
     typedef std::function<bool(const IR::Annotation*)> Filter;
 #end
-    Annotations where(Filter func) const {
-        auto rv = empty->clone();
+    const Annotations *where(Filter func) const {
+        auto rv = empty.clone();
         std::copy_if(annotations.begin(), annotations.end(),
                      std::back_insert_iterator<Vector<Annotation>>(rv->annotations), func);
         if (rv->annotations.size() == annotations.size()) return this;
@@ -376,8 +380,8 @@ class Annotations {
 
 /// Implemented by all objects that can have annotations
 interface IAnnotated {
-    virtual Annotations getAnnotations() const = 0;
-    Annotation getAnnotation(cstring name) const override {
+    virtual const Annotations *getAnnotations() const = 0;
+    const Annotation *getAnnotation(cstring name) const override {
         return getAnnotations()->getSingle(name); }
 }
 

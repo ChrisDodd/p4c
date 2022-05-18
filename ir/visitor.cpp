@@ -45,6 +45,7 @@ class Visitor::ChangeTracker {
     struct visit_info_t {
         bool visit_in_progress;
         bool visitOnce;
+        int id;  // sanity check
         const IR::Node *result;
     };
     typedef std::unordered_map<const IR::Node *, visit_info_t> visited_t;
@@ -60,11 +61,12 @@ class Visitor::ChangeTracker {
         bool inserted;
         bool visit_in_progress = true;
         std::tie(visited_it, inserted) =
-            visited.emplace(n, visit_info_t{visit_in_progress, defaultVisitOnce, n});
+            visited.emplace(n, visit_info_t{visit_in_progress, defaultVisitOnce, n->id, n});
 
         // Sanity check for IR loops
         bool already_present = !inserted;
         visit_info_t *visit_info = &(visited_it->second);
+        BUG_CHECK(visit_info->id == n->id, "node id mismatch in Visitor::ChangeTracker");
         if (already_present && visit_info->visit_in_progress) BUG("IR loop detected ");
     }
 
@@ -86,13 +88,15 @@ class Visitor::ChangeTracker {
         if (it == visited.end()) BUG("visitor state tracker corrupted");
 
         visit_info_t *orig_visit_info = &(it->second);
+        BUG_CHECK(orig_visit_info->id == orig->id, "node id mismatch in Visitor::ChangeTracker");
         orig_visit_info->visit_in_progress = false;
         if (!final) {
             orig_visit_info->result = final;
             return true;
         } else if (final != orig && *final != *orig) {
             orig_visit_info->result = final;
-            visited.emplace(final, visit_info_t{false, orig_visit_info->visitOnce, final});
+            visited.emplace(final,
+                            visit_info_t{false, orig_visit_info->visitOnce, final->id, final});
             return true;
         } else if (visited.count(final)) {
             // coalescing with some previously visited node, so we don't want to undo
@@ -111,6 +115,7 @@ class Visitor::ChangeTracker {
      */
     bool *refVisitOnce(const IR::Node *n) {
         if (!visited.count(n)) BUG("visitor state tracker corrupted");
+        BUG_CHECK(visited.at(n).id == n->id, "node id mismatch in Visitor::ChangeTracker");
         return &visited.at(n).visitOnce;
     }
 
@@ -132,6 +137,8 @@ class Visitor::ChangeTracker {
      */
     bool busy(const IR::Node *n) const {
         auto it = visited.find(n);
+        BUG_CHECK(it == visited.end() || it->second.id == n->id,
+                  "node id mismatch in Visitor::ChangeTracker");
         return it != visited.end() && it->second.visit_in_progress;
     }
 
@@ -144,6 +151,8 @@ class Visitor::ChangeTracker {
      */
     bool done(const IR::Node *n) const {
         auto it = visited.find(n);
+        BUG_CHECK(it == visited.end() || it->second.id == n->id,
+                  "node id mismatch in Visitor::ChangeTracker");
         return it != visited.end() && !it->second.visit_in_progress && it->second.visitOnce;
     }
 
@@ -155,6 +164,7 @@ class Visitor::ChangeTracker {
      */
     const IR::Node *result(const IR::Node *n) const {
         if (!visited.count(n)) return n;
+        BUG_CHECK(visited.at(n).id == n->id, "node id mismatch in Visitor::ChangeTracker");
         return visited.at(n).result;
     }
 };
@@ -220,7 +230,7 @@ Visitor::profile_t::profile_t(Visitor &v_) : v(v_) {
 #endif
     start = ts.tv_sec * 1000000000UL + ts.tv_nsec + 1;
     assert(start);
-    LOG3(profile_indent << v.name() << " statrting at +"
+    LOG3(profile_indent << v.name() << " startting at +"
                         << (first_start ? start - first_start : (first_start = start, 0UL)) /
                                1000000.0
                         << " msec");
@@ -591,6 +601,33 @@ IRNODE_ALL_NON_TEMPLATE_CLASSES(DEFINE_APPLY_FUNCTIONS, , , )
     }
 IRNODE_ALL_SUBCLASSES(DEFINE_VISIT_FUNCTIONS)
 #undef DEFINE_VISIT_FUNCTIONS
+
+#if !HAVE_LIBGC
+#define DEFINE_VISIT_FUNCTIONS(CLASS, BASE)                                               \
+    void Visitor::visit(IR::shared_ptr<IR::CLASS> &n, const char *name) {                 \
+        auto *t = apply_visitor(n, name);                                                 \
+        auto *r = dynamic_cast<const IR::CLASS *>(t);                                     \
+        BUG_CHECK(!t || r, "visitor returned non-" #CLASS " type: %1%", t);               \
+        n = r;                                                                            \
+    }                                                                                     \
+    void Visitor::visit(IR::shared_ptr<IR::CLASS> const &n, const char *name) {           \
+        /* This function needed solely due to order of declaration issues */              \
+        visit(static_cast<const IR::Node *const &>(n), name);                             \
+    }                                                                                     \
+    void Visitor::visit(IR::shared_ptr<IR::CLASS> &n, const char *name, int cidx) {       \
+        ctxt->child_index = cidx;                                                         \
+        auto t = apply_visitor(n, name);                                                  \
+        auto *r = dynamic_cast<const IR::CLASS *>(t);                                     \
+        BUG_CHECK(!t || r, "visitor returned non-" #CLASS " type: %1%", t);               \
+        n = r;                                                                            \
+    }                                                                                     \
+    void Visitor::visit(IR::shared_ptr<IR::CLASS> const &n, const char *name, int cidx) { \
+        /* This function needed solely due to order of declaration issues */              \
+        visit(static_cast<const IR::Node *const &>(n), name, cidx);                       \
+    }
+IRNODE_ALL_SUBCLASSES(DEFINE_VISIT_FUNCTIONS)
+#undef DEFINE_VISIT_FUNCTIONS
+#endif /* !HAVE_LIBGC */
 
 std::ostream &operator<<(std::ostream &out, const IR::Vector<IR::Expression> *v) {
     return v ? out << *v : out << "<null>";

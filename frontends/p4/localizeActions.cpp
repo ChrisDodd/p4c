@@ -40,7 +40,7 @@ class ParamCloner : public ClonePathExpressions {
 const IR::Node *TagGlobalActions::preorder(IR::P4Action *action) {
     if (findContext<IR::P4Control>() == nullptr) {
         auto annos = action->annotations;
-        if (annos == nullptr) annos = IR::Annotations::empty;
+        if (annos == nullptr) annos = &IR::Annotations::empty;
         cstring name = cstring(".") + action->name;
         annos = annos->addAnnotationIfNew(IR::Annotation::nameAnnotation,
                                           new IR::StringLiteral(name), false);
@@ -70,7 +70,7 @@ bool FindGlobalActionUses::preorder(const IR::PathExpression *path) {
         auto params = cloner.clone<IR::ParameterList>(action->parameters);
 
         auto annos = action->annotations;
-        if (annos == nullptr) annos = IR::Annotations::empty;
+        if (annos == nullptr) annos = &IR::Annotations::empty;
         annos->addAnnotationIfNew(IR::Annotation::nameAnnotation,
                                   new IR::StringLiteral(action->name), false);
         auto replacement = new IR::P4Action(
@@ -153,7 +153,7 @@ bool FindRepeatedActionUses::preorder(const IR::PathExpression *expression) {
         auto annos = action->annotations;
         auto params = cloner.clone<IR::ParameterList>(action->parameters);
 
-        if (annos == nullptr) annos = IR::Annotations::empty;
+        if (annos == nullptr) annos = &IR::Annotations::empty;
         annos->addAnnotationIfNew(IR::Annotation::nameAnnotation,
                                   new IR::StringLiteral(action->name), false);
         replacement = new IR::P4Action(

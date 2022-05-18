@@ -759,7 +759,7 @@ class CheckIfMultiEntryPoint : public Inspector {
         setName("CheckIfMultiEntryPoint");
     }
     bool preorder(const IR::ParserState *state) {
-        for (const auto *anno : state->getAnnotations()->annotations) {
+        for (const IR::Annotation *anno : state->getAnnotations()->annotations) {
             if (anno->name.name == "packet_entry") {
                 structure->parserEntryPoints.emplace(state->name, state);
             }

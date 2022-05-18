@@ -19,6 +19,7 @@ limitations under the License.
 
 #include <vector>
 
+#include "config.h"
 #include "lib/cstring.h"
 #include "lib/source_file.h"
 

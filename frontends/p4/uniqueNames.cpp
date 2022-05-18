@@ -67,7 +67,7 @@ class FindActionCalls : public Inspector {
 // Add a @name annotation ONLY if it does not already exist.
 // Otherwise do nothing.
 static const IR::Annotations *addNameAnnotation(cstring name, const IR::Annotations *annos) {
-    if (annos == nullptr) annos = IR::Annotations::empty;
+    if (annos == nullptr) annos = &IR::Annotations::empty;
     return annos->addAnnotationIfNew(IR::Annotation::nameAnnotation, new IR::StringLiteral(name),
                                      false);
 }

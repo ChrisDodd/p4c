@@ -128,6 +128,32 @@ class Visitor {
     void visit(IR::CLASS *&, const char * = 0, int = 0) { BUG("Can't visit non-const pointer"); }
     IRNODE_ALL_SUBCLASSES(DECLARE_VISIT_FUNCTIONS)
 #undef DECLARE_VISIT_FUNCTIONS
+
+#if !HAVE_LIBGC
+    /* additional visit functions needed when using IR::shared_ptr */
+    void visit(IR::shared_ptr<IR::Node> &n, const char *name = 0) { n = apply_visitor(n, name); }
+    void visit(IR::shared_ptr<IR::Node> const &n, const char *name = 0) {
+        auto t = apply_visitor(n, name);
+        if (t != n) visitor_const_error();
+    }
+    void visit(IR::shared_ptr<IR::Node> &n, const char *name, int cidx) {
+        ctxt->child_index = cidx;
+        n = apply_visitor(n, name);
+    }
+    void visit(IR::shared_ptr<IR::Node> const &n, const char *name, int cidx) {
+        ctxt->child_index = cidx;
+        auto t = apply_visitor(n, name);
+        if (t != n) visitor_const_error();
+    }
+#define DECLARE_VISIT_FUNCTIONS(CLASS, BASE)                              \
+    void visit(IR::shared_ptr<IR::CLASS> &n, const char *name = 0);       \
+    void visit(IR::shared_ptr<IR::CLASS> const &n, const char *name = 0); \
+    void visit(IR::shared_ptr<IR::CLASS> &n, const char *name, int cidx); \
+    void visit(IR::shared_ptr<IR::CLASS> const &n, const char *name, int cidx);
+    IRNODE_ALL_SUBCLASSES(DECLARE_VISIT_FUNCTIONS)
+#undef DECLARE_VISIT_FUNCTIONS
+#endif /* !HAVE_LIBGC */
+
     void visit(IR::Node &n, const char *name = 0) {
         if (name && ctxt) ctxt->child_name = name;
         n.visit_children(*this);
@@ -281,6 +307,12 @@ class Visitor {
     void warn(const int kind, const char *format, const T *node, Args... args) {
         if (warning_enabled(kind)) ::warning(kind, format, node, std::forward<Args>(args)...);
     }
+#if !HAVE_LIBGC
+    template <class T, class... Args>
+    void warn(const int kind, const char *format, IR::shared_ptr<T> node, Args... args) {
+        if (warning_enabled(kind)) ::warning(kind, format, node, std::forward<Args>(args)...);
+    }
+#endif /* !HAVE_LIBGC */
 
     /// The const ref variant of the above
     template <
@@ -618,7 +650,7 @@ class SplitFlowVisitVector : public SplitFlowVisit_base {
                         i = vec->erase(i);
                     } else {
                         i = vec->insert(i, v->size() - 1, nullptr);
-                        for (auto el : *v) {
+                        for (const IR:Node *el : *v) {
                             CHECK_NULL(el);
                             if (auto e = dynamic_cast<const N *>(el))
                                 *i++ = e;

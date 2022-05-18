@@ -31,9 +31,10 @@ namespace IR {
 
 template <class T, template <class K, class V, class COMP, class ALLOC> class MAP = std::map,
           class COMP = std::less<cstring>,
-          class ALLOC = std::allocator<std::pair<const cstring, const T *>>>
+          class ALLOC = std::allocator<std::pair<const cstring, IR::Ptr<T>>>>
 class NameMap : public Node {
-    typedef MAP<cstring, const T *, COMP, ALLOC> map_t;
+    typedef MAP<cstring, IR::Ptr<T>, COMP, ALLOC> map_t;
+
     map_t symbols;
     /* if the object has a 'name' field, is it the same as name? */
     template <class U>
@@ -54,6 +55,8 @@ class NameMap : public Node {
     explicit NameMap(JSONLoader &);
     NameMap &operator=(const NameMap &) = default;
     NameMap &operator=(NameMap &&) = default;
+    typedef typename map_t::key_type key_type;
+    typedef typename map_t::mapped_type mapped_type;
     typedef typename map_t::value_type value_type;
     typedef typename map_t::iterator iterator;
     typedef typename map_t::const_iterator const_iterator;
@@ -97,7 +100,7 @@ class NameMap : public Node {
     template <class U>
     const U *get(cstring name) const {
         for (auto it = symbols.find(name); it != symbols.end() && it->first == name; it++)
-            if (auto rv = dynamic_cast<const U *>(it->second)) return rv;
+            if (auto rv = dynamic_cast<const U *>(static_cast<const T *>(it->second))) return rv;
         return nullptr;
     }
     void add(cstring name, const T *n) {
@@ -122,8 +125,8 @@ class NameMap : public Node {
     }
     elem_ref operator[](cstring name) { return elem_ref(*this, name); }
     const T *operator[](cstring name) const { return count(name) ? at(name) : nullptr; }
-    const T *&at(cstring name) { return symbols.at(name); }
-    const T *const &at(cstring name) const { return symbols.at(name); }
+    mapped_type &at(cstring name) { return symbols.at(name); }
+    mapped_type const &at(cstring name) const { return symbols.at(name); }
     void check_null() const {
         for (auto &e : symbols) CHECK_NULL(e.second);
     }
@@ -149,9 +152,11 @@ class NameMap : public Node {
     static NameMap<T, MAP, COMP, ALLOC> *fromJSON(JSONLoader &json);
 
     Util::Enumerator<const T *> *valueEnumerator() const {
-        return Util::Enumerator<const T *>::createEnumerator(Values(symbols).begin(),
-                                                             Values(symbols).end());
+        return Util::Enumerator<IR::Ptr<T>>::createEnumerator(Values(symbols).begin(),
+                                                              Values(symbols).end())
+            ->template map<const T *>([](const IR::Ptr<T> &a) -> const T * { return a; });
     }
+
     template <typename S>
     Util::Enumerator<const S *> *only() const {
         std::function<bool(const T *)> filter = [](const T *d) { return d->template is<S>(); };

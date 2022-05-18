@@ -164,13 +164,13 @@ void serializeOneStructuredAnnotation(const IR::Annotation *annotation,
             // nothing to do, body oneof should be empty.
             return;
         case IR::Annotation::Kind::StructuredExpressionList:
-            for (auto *expr : annotation->expr) {
+            for (const IR::Expression *expr : annotation->expr) {
                 serializeStructuredExpression(
                     expr, structuredAnnotation->mutable_expression_list()->add_expressions());
             }
             return;
         case IR::Annotation::Kind::StructuredKVList:
-            for (auto *kv : annotation->kv) {
+            for (const IR::NamedExpression *kv : annotation->kv) {
                 serializeStructuredKVPair(
                     kv, structuredAnnotation->mutable_kv_pair_list()->add_kv_pairs());
             }

@@ -121,13 +121,13 @@ void IrDefinitions::generate(std::ostream &t, std::ostream &out, std::ostream &i
     out << "#include <functional>\n"
         << "#include <map>\n\n"
         << "// Special IR classes and types\n"
-        << "#include \"ir/dbprint.h\"         // IWYU pragma: keep\n"
         << "#include \"ir/id.h\"              // IWYU pragma: keep\n"
         << "#include \"ir/indexed_vector.h\"  // IWYU pragma: keep\n"
         << "#include \"ir/namemap.h\"         // IWYU pragma: keep\n"
         << "#include \"ir/node.h\"            // IWYU pragma: keep\n"
         << "#include \"ir/nodemap.h\"         // IWYU pragma: keep\n"
         << "#include \"ir/vector.h\"          // IWYU pragma: keep\n"
+        << "#include \"ir/dbprint.h\"         // IWYU pragma: keep\n"
         << std::endl
         << "class JSONLoader;\n"
         << "using NodeFactoryFn = IR::Node*(*)(JSONLoader&);\n"
@@ -225,9 +225,21 @@ void EmitBlock::generate_impl(std::ostream &out) const {
 
 void IrMethod::generate_proto(std::ostream &out, bool fullname, bool defaults) const {
     if (rtype) {
-        if (rtype->isResolved()) out << "const ";
+        if (rtype->isResolved()) {
+#if !HAVE_LIBGC
+            out << "IR::shared_ptr<";
+#else
+            out << "const ";
+#endif
+        }
         out << rtype->toString() << " ";
-        if (rtype->isResolved()) out << "*";
+        if (rtype->isResolved()) {
+#if HAVE_LIBGC
+            out << "*";
+#else
+            out << "> ";
+#endif
+        }
     }
     if (fullname && !isFriend) out << "IR::" << clss->containedIn << clss->name << "::";
     out << name << "(";
@@ -497,13 +509,7 @@ void IrClass::resolve() {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-void IrField::generate(std::ostream &out, bool asField) const {
-    if (asField) {
-        out << IrClass::indent;
-        if (isStatic) out << "static ";
-        if (isConst) out << "const ";
-    }
-
+const IrClass *IrField::typeClass() const {
     auto tmpl = dynamic_cast<const TemplateInstantiation *>(type);
     const IrClass *cls = type->resolve(clss ? clss->containedIn : nullptr);
     if (cls) {
@@ -535,25 +541,82 @@ void IrField::generate(std::ostream &out, bool asField) const {
             throw Util::CompilationError("No args for template %1%", cls);
         }
     }
-    if (cls != nullptr && !isInline) out << "const ";
+    return cls;
+}
+
+void IrField::generate(std::ostream &out, bool asField) const {
+    if (asField) {
+        out << IrClass::indent;
+        if (isStatic) out << "static ";
+        if (isConst) out << "const ";
+    }
+
+    const IrClass *cls = typeClass();
+
+    if (cls != nullptr && !isInline) {
+#if !HAVE_LIBGC
+        if (asField)
+            out << "IR::shared_ptr<";
+        else
+#endif /* !HAVE_LIBGC */
+            out << "const ";
+    }
     out << type->toString();
-    if (cls != nullptr && !isInline) out << "*";
+    if (cls != nullptr && !isInline) {
+#if !HAVE_LIBGC
+        if (asField)
+            out << ">";
+        else
+#endif /* !HAVE_LIBGC */
+            out << "*";
+    }
     out << " " << name << type->declSuffix();
     if (asField) {
         if (!isStatic) {
-            if (!initializer.isNullOrEmpty())
+            if (!initializer.isNullOrEmpty()) {
                 out << " = " << initializer;
-            else if (cls != nullptr && !isInline)
+            } else if (cls != nullptr && !isInline) {
                 out << " = nullptr";
+            }
         }
         out << ";";
         out << std::endl;
     }
 }
 
-void IrField::generate_impl(std::ostream &) const {
+void IrField::generate_impl(std::ostream &out) const {
     if (!isStatic) return;
-    // FIXME -- for now statics are manually generated elsewhere
+
+    out << LineDirective(srcInfo);
+    if (isConst) out << "const ";
+
+    const IrClass *cls = typeClass();
+
+    if (cls != nullptr && !isInline) {
+#if HAVE_LIBGC
+        out << "const ";
+#else
+        out << "IR::shared_ptr<";
+#endif
+    }
+    out << type->toString();
+    if (cls != nullptr && !isInline) {
+#if HAVE_LIBGC
+        out << "*";
+#else
+        out << ">";
+#endif
+    }
+    out << " IR::" << clss->containedIn << clss->name << "::" << name << type->declSuffix();
+
+    if (!initializer.isNullOrEmpty()) {
+        out << " = " << initializer;
+    } else if (cls != nullptr && !isInline) {
+        out << " = nullptr";
+    }
+    out << ";";
+    out << std::endl;
+    if (!srcInfo.isValid()) out << LineDirective();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -163,6 +163,7 @@ class IrField : public IrElement {
     void generate(std::ostream &out, bool asField) const;
     void generate_hdr(std::ostream &out) const override { generate(out, true); }
     void generate_impl(std::ostream &) const override;
+    const IrClass *typeClass() const;
     cstring toString() const override { return name; }
 };
 

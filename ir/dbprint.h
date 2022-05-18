@@ -94,4 +94,24 @@ inline std::ostream &operator<<(std::ostream &out, const DBPrint::dbprint_flags 
 
 }  // end namespace DBPrint
 
+/* all operator<< are in global namespace to avoid ADL problems */
+inline std::ostream &operator<<(std::ostream &out, IR::INode *ptr) {
+    if (ptr)
+        ptr->dbprint(out);
+    else
+        out << "(null)";
+    return out;
+}
+
+#if !HAVE_LIBGC
+template <class T>
+inline std::ostream &operator<<(std::ostream &out, const IR::shared_ptr<T> &ptr) {
+    if (ptr)
+        ptr->dbprint(out);
+    else
+        out << "(null)";
+    return out;
+}
+#endif /* !HAVE_LIBGC */
+
 #endif /* _IR_DBPRINT_H_ */

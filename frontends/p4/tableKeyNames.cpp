@@ -51,7 +51,7 @@ cstring keyComponentNameForMember(const IR::Member *expression, const P4::TypeMa
     // If this Member represents a field which has an @name annotation, use it.
     if (type->is<IR::Type_StructLike>()) {
         auto *st = type->to<IR::Type_StructLike>();
-        auto *field = st->getField(expression->member);
+        const IR::StructField *field = st->getField(expression->member);
         if (field != nullptr) return field->externalName();
     }
 

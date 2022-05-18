@@ -216,7 +216,7 @@ class ComputeNewNames : public Inspector {
 
 // Add a @name annotation ONLY.
 static const IR::Annotations *setNameAnnotation(cstring name, const IR::Annotations *annos) {
-    if (annos == nullptr) annos = IR::Annotations::empty;
+    if (annos == nullptr) annos = &IR::Annotations::empty;
     return annos->addOrReplace(IR::Annotation::nameAnnotation, new IR::StringLiteral(name));
 }
 
@@ -453,10 +453,10 @@ Visitor::profile_t GeneralInliner::init_apply(const IR::Node *node) {
 template <class P4Block, class P4BlockType>
 void GeneralInliner::inline_subst(P4Block *caller,
                                   IR::IndexedVector<IR::Declaration> P4Block::*blockLocals,
-                                  const P4BlockType *P4Block::*blockType) {
+                                  P4BlockType P4Block::*blockType) {
     LOG3("Analyzing " << dbp(caller));
     IR::IndexedVector<IR::Declaration> locals;
-    P4BlockType *type = (caller->*blockType)->clone();
+    auto *type = (caller->*blockType)->clone();
     IR::Annotations *annos = type->annotations->clone();
     for (auto s : caller->*blockLocals) {
         /* Even if we inline the block, the declaration may still be needed.
@@ -481,7 +481,7 @@ void GeneralInliner::inline_subst(P4Block *caller,
 
             // Propagate annotations
             const IR::Annotations *calleeAnnos = (callee->*blockType)->annotations;
-            for (auto *ann : calleeAnnos->annotations) {
+            for (const IR::Annotation *ann : calleeAnnos->annotations) {
                 if (!annos->getSingle(ann->name) && !Inline::isAnnotationNoPropagate(ann->name)) {
                     annos->add(ann);
                 }
@@ -880,7 +880,7 @@ const IR::Node *GeneralInliner::preorder(IR::ParserState *state) {
         }
 
         // Prepare next state
-        annotations = IR::Annotations::empty;
+        annotations = &IR::Annotations::empty;
         name = IR::ID(nextState, state->name);
         current.clear();
 

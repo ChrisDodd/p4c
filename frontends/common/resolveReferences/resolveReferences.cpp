@@ -160,7 +160,7 @@ const std::vector<const IR::IDeclaration *> *ResolutionContext::lookup(
 
 const std::vector<const IR::IDeclaration *> *ResolutionContext::lookupMatchKind(IR::ID name) const {
     if (auto *global = findContext<IR::P4Program>()) {
-        for (auto *obj : global->objects) {
+        for (const IR::Node *obj : global->objects) {
             if (auto *match_kind = obj->to<IR::Declaration_MatchKind>()) {
                 auto *rv = lookup(match_kind, name, ResolutionType::Any);
                 if (!rv->empty()) return rv;

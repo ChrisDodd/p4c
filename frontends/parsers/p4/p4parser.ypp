@@ -242,7 +242,7 @@ inline std::ostream& operator<<(std::ostream& out, const P4::Token& t) {
 %type<IR::Vector<IR::Argument>*>  argumentList nonEmptyArgList
 %type<IR::Parameter*>       parameter
 %type<OptionalConst>        optCONST
-%type<IR::Annotations*>     optAnnotations
+%type<const IR::Annotations*> optAnnotations
 %type<IR::Vector<IR::Annotation>*>  annotations
 %type<IR::Annotation*>      annotation
 %type<IR::Vector<IR::AnnotationToken>*> annotationBody
@@ -482,7 +482,7 @@ optCONST
     ;
 
 optAnnotations
-    : %empty      { $$ = IR::Annotations::empty; }
+    : %empty      { $$ = &IR::Annotations::empty; }
     | annotations { $$ = new IR::Annotations(@1, *$1); }
     ;
 

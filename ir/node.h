@@ -27,6 +27,10 @@ limitations under the License.
 #include "lib/exceptions.h"
 #include "lib/source_file.h"
 
+#if !HAVE_LIBGC
+#include "shared_ptr.h"
+#endif /* !HAVE_LIBGC */
+
 class Visitor;
 struct Visitor_Context;
 class Inspector;
@@ -48,8 +52,27 @@ class Vector;  // IWYU pragma: keep
 template <class T>
 class IndexedVector;  // IWYU pragma: keep
 
+#if HAVE_LIBGC
+template <class T>
+using Ptr = const T *;
+#else
+template <class T>
+using Ptr = shared_ptr<T>;
+#endif
+
 // node interface
-class INode : public Util::IHasSourceInfo, public IHasDbPrint, public ICastable {
+class INode :
+#if !HAVE_LIBGC
+    public shared_ptr_base,
+#endif /* !HAVE_LIBGC */
+    public Util::IHasSourceInfo,
+    public IHasDbPrint,
+    public ICastable {
+#if HAVE_LIBGC
+ protected:
+    const char *dbheap() const { return ""; }
+#endif /* !HAVE_LIBGC */
+
  public:
     virtual ~INode() {}
     virtual const Node *getNode() const = 0;
@@ -60,6 +83,7 @@ class INode : public Util::IHasSourceInfo, public IHasDbPrint, public ICastable 
     virtual cstring node_type_name() const = 0;
     virtual void validate() const {}
     virtual const Annotation *getAnnotation(cstring) const { return nullptr; }
+
     /// A checked version of INode::to. A BUG occurs if the cast fails.
     ///
     /// A similar effect can be achieved with `&as<T>()`, but this method
@@ -73,6 +97,9 @@ class INode : public Util::IHasSourceInfo, public IHasDbPrint, public ICastable 
     }
 };
 
+#pragma GCC diagnostic ignored "-Wvirtual-move-assign"
+// Yes the base class may have a non-trivial move assignment -- that's why we have an
+// explicit `= default` here (that and C++11 doesn't create a default move without it)
 class Node : public virtual INode {
  public:
     virtual bool apply_visitor_preorder(Modifier &v);
@@ -90,6 +117,8 @@ class Node : public virtual INode {
     Node &operator=(const Node &) = default;
     Node &operator=(Node &&) = default;
 
+#pragma GCC diagnostic pop
+
  protected:
     static int currentId;
     void traceVisit(const char *visitor) const;
@@ -102,19 +131,27 @@ class Node : public virtual INode {
     cstring prepareSourceInfoForJSON(Util::SourceInfo &si, unsigned *lineNumber,
                                      unsigned *columnNumber) const;
 
+#if HAVE_LIBGC
+#define INODE_INIT
+#else /* !HAVE_LIBGC */
+/* IF using IR::shared_ptr, need explicit initialization of INode to avoid spurious warnings */
+#define INODE_INIT INode(),
+#endif /* !HAVE_LIBGC */
+
  public:
     Util::SourceInfo srcInfo;
     int id;        // unique id for each node
     int clone_id;  // unique id this node was cloned from (recursively)
     void traceCreation() const;
-    Node() : id(currentId++), clone_id(id) { traceCreation(); }
+    Node() : INODE_INIT id(currentId++), clone_id(id) { traceCreation(); }
     explicit Node(Util::SourceInfo si) : srcInfo(si), id(currentId++), clone_id(id) {
         traceCreation();
     }
-    Node(const Node &other) : srcInfo(other.srcInfo), id(currentId++), clone_id(other.clone_id) {
+    Node(const Node &other)
+        : INODE_INIT srcInfo(other.srcInfo), id(currentId++), clone_id(other.clone_id) {
         traceCreation();
     }
-    virtual ~Node() {}
+    virtual ~Node();
     const Node *apply(Visitor &v, const Visitor_Context *ctxt = nullptr) const;
     const Node *apply(Visitor &&v, const Visitor_Context *ctxt = nullptr) const {
         return apply(v, ctxt);

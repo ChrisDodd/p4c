@@ -99,8 +99,7 @@ void IR::Vector<T>::visit_children(Visitor &v) {
                 i = erase(i);
             } else {
                 i = insert(i, v->size() - 1, nullptr);
-                for (const auto *el : *v) {
-                    CHECK_NULL(el);
+                for (const IR::Node *el : *v) {
                     if (auto e = dynamic_cast<const T *>(el)) {
                         *i++ = e;
                     } else {

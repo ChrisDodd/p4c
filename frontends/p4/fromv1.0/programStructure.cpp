@@ -87,7 +87,7 @@ ProgramStructure::ProgramStructure()
 
 const IR::Annotations *ProgramStructure::addNameAnnotation(cstring name,
                                                            const IR::Annotations *annos) {
-    if (annos == nullptr) annos = IR::Annotations::empty;
+    if (annos == nullptr) annos = &IR::Annotations::empty;
     return annos->addAnnotationIfNew(IR::Annotation::nameAnnotation, new IR::StringLiteral(name));
 }
 
@@ -969,7 +969,7 @@ const IR::P4Table *ProgramStructure::convertTable(const IR::V1Table *table, cstr
             if (rt.name == "valid") rt.name = p4lib.exactMatch.Id();
             auto ce = conv.convert(e);
 
-            const IR::Annotations *annos = IR::Annotations::empty;
+            const IR::Annotations *annos = &IR::Annotations::empty;
             // Generate a name annotation for the key if it contains a mask.
             if (auto bin = e->to<IR::Mask>()) {
                 // This is a bit heuristic, but P4-14 does not allow arbitrary expressions for keys
@@ -1065,7 +1065,7 @@ const IR::P4Table *ProgramStructure::convertTable(const IR::V1Table *table, cstr
         auto path = new IR::PathExpression(name);
         auto propvalue = new IR::ExpressionValue(path);
         auto prop = new IR::Property(IR::ID(v1model.tableAttributes.counters.Id()),
-                                     IR::Annotations::empty, propvalue, false);
+                                     &IR::Annotations::empty, propvalue, false);
         props->push_back(prop);
     }
 
@@ -1138,8 +1138,8 @@ static bool sameBitsType(const IR::Node *errorPosition, const IR::Type *left,
 
 static bool isSaturatedField(const IR::Expression *expr) {
     auto member = expr->to<IR::Member>();
-    if (!member) return false;
-    auto header_type = dynamic_cast<const IR::Type_StructLike *>(member->expr->type);
+    if (!member || !member->expr || !member->expr->type) return false;
+    auto header_type = member->expr->type->to<IR::Type_StructLike>();
     if (!header_type) return false;
     auto field = header_type->getField(member->member.name);
     if (field && field->getAnnotation("saturating")) {

@@ -476,7 +476,7 @@ class ParserSymbolicInterpreter {
             success = reportIfError(state, e);
         } else if (auto bs = sord->to<IR::BlockStatement>()) {
             IR::IndexedVector<IR::StatOrDecl> newComponents;
-            for (auto *component : bs->components) {
+            for (const IR::StatOrDecl *component : bs->components) {
                 auto newComponent = executeStatement(state, component, valueMap);
                 if (!newComponent)
                     success = false;

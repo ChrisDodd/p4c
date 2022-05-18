@@ -165,7 +165,7 @@ IR::Node *HSIndexContretizer::preorder(IR::P4Control *control) {
     GeneratedVariablesMap blockGeneratedVariables;
     HSIndexContretizer hsSimplifier(refMap, typeMap, &newControlLocals, &blockGeneratedVariables);
     newControl->body = newControl->body->apply(hsSimplifier)->to<IR::BlockStatement>();
-    for (const auto *declaration : controlKeySimplified->controlLocals) {
+    for (const IR::Declaration *declaration : controlKeySimplified->controlLocals) {
         if (declaration->is<IR::P4Action>()) {
             newControlLocals.push_back(declaration->apply(hsSimplifier)->to<IR::Declaration>());
         } else {

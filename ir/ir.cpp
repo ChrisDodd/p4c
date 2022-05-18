@@ -47,23 +47,6 @@ limitations under the License.
 
 namespace IR {
 
-const cstring ParserState::accept = "accept";
-const cstring ParserState::reject = "reject";
-const cstring ParserState::start = "start";
-const cstring ParserState::verify = "verify";
-
-const cstring TableProperties::actionsPropertyName = "actions";
-const cstring TableProperties::keyPropertyName = "key";
-const cstring TableProperties::defaultActionPropertyName = "default_action";
-const cstring TableProperties::entriesPropertyName = "entries";
-const cstring TableProperties::sizePropertyName = "size";
-const cstring IApply::applyMethodName = "apply";
-const cstring P4Program::main = "main";
-const cstring Type_Error::error = "error";
-
-int IR::Declaration::nextId = 0;
-int IR::This::nextId = 0;
-
 const Type_Method *P4Control::getConstructorMethodType() const {
     return new Type_Method(getTypeParameters(), type, constructorParams, getName());
 }
@@ -220,16 +203,6 @@ const Type_Method *P4Table::getApplyMethodType() const {
 
 const Type_Method *Type_Table::getApplyMethodType() const { return table->getApplyMethodType(); }
 
-void Block::setValue(const Node *node, const CompileTimeValue *value) {
-    CHECK_NULL(node);
-    auto it = constantValue.find(node);
-    if (it != constantValue.end())
-        BUG_CHECK(value->equiv(*constantValue[node]), "%1% already set in %2% to %3%, not %4%",
-                  node, this, value, constantValue[node]);
-    else
-        constantValue[node] = value;
-}
-
 void InstantiatedBlock::instantiate(std::vector<const CompileTimeValue *> *args) {
     CHECK_NULL(args);
     auto it = args->begin();
@@ -252,7 +225,7 @@ const IR::CompileTimeValue *InstantiatedBlock::getParameterValue(cstring paramNa
 }
 
 const IR::CompileTimeValue *InstantiatedBlock::findParameterValue(cstring paramName) const {
-    auto *param = getConstructorParameters()->getDeclByName(paramName);
+    auto param = getConstructorParameters()->getDeclByName(paramName);
     if (!param) return nullptr;
     if (!param->is<IR::Parameter>()) return nullptr;
     return getValue(param->getNode());

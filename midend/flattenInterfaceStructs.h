@@ -70,10 +70,10 @@ struct StructTypeReplacement : public IHasDbPrint {
         flatten(typeMap, "", type, type->annotations, vec, policy);
         if (type->is<IR::Type_Struct>()) {
             replacementType =
-                new IR::Type_Struct(type->srcInfo, type->name, IR::Annotations::empty, *vec);
+                new IR::Type_Struct(type->srcInfo, type->name, &IR::Annotations::empty, *vec);
         } else if (type->is<IR::Type_Header>()) {
             replacementType =
-                new IR::Type_Header(type->srcInfo, type->name, IR::Annotations::empty, *vec);
+                new IR::Type_Header(type->srcInfo, type->name, &IR::Annotations::empty, *vec);
         } else {
             BUG("Unexpected type %1%", type);
         }

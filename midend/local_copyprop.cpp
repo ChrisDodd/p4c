@@ -413,7 +413,7 @@ IR::IfStatement *DoLocalCopyPropagation::postorder(IR::IfStatement *s) {
 
 bool isAsync(const IR::Vector<IR::Method> methods, cstring callee, cstring caller) {
     if (callee[0] == '.') callee = callee.substr(1);
-    for (auto *m : methods) {
+    for (const IR::Method *m : methods) {
         if (m->name != callee) continue;
         auto sync = m->getAnnotation(IR::Annotation::synchronousAnnotation);
         if (!sync) return true;
@@ -698,7 +698,7 @@ const IR::P4Parser *DoLocalCopyPropagation::postorder(IR::P4Parser *parser) {
     working = true;
     LOG2("DoLocalCopyPropagation working on parser " << parser->name);
     visit(parser->parserLocals, "parserLocals");  // visit these again with working==true
-    for (auto *state : parser->states) apply_function(&states[state->name]);
+    for (const IR::ParserState *state : parser->states) apply_function(&states[state->name]);
     auto *rv = parser->apply(ElimDead(*this));
     working = false;
     available.clear();

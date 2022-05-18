@@ -123,7 +123,7 @@ const IR::Node *ExpressionConverter::postorder(IR::Primitive *primitive) {
     } else {
         auto func = new IR::PathExpression(IR::ID(primitive->srcInfo, primitive->name));
         auto args = new IR::Vector<IR::Argument>;
-        for (auto *op : primitive->operands) args->push_back(new IR::Argument(op));
+        for (const IR::Expression *op : primitive->operands) args->push_back(new IR::Argument(op));
         auto result = new IR::MethodCallExpression(primitive->srcInfo, func, args);
         return result;
     }

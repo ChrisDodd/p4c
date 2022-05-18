@@ -903,9 +903,9 @@ class P4RuntimeAnalyzer {
         std::set<cstring> keysVisited;
 
         // @pkginfo annotation
-        for (auto *annotation : decl->getAnnotations()->annotations) {
+        for (const IR::Annotation *annotation : decl->getAnnotations()->annotations) {
             if (annotation->name != IR::Annotation::pkginfoAnnotation) continue;
-            for (auto *kv : annotation->kv) {
+            for (const IR::NamedExpression *kv : annotation->kv) {
                 auto name = kv->name.name;
                 auto setStringField = [kv, pkginfo, &keysVisited](cstring fName) {
                     auto *v = kv->expression->to<IR::StringLiteral>();

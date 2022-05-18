@@ -44,37 +44,51 @@ inline bool operator>>(cstring s, IR::CounterType &ctr) {
 
 class Type_Block : Type_Base {
     toString { return "block"; }
-    static Type_Block get();
+    static Type_Block get() {
+        static const Type_Block _singleton;
+        return &_singleton; }
     dbprint { out << "block"; }
 }
 class Type_Counter : Type_Base {
     toString { return "counter"; }
-    static Type_Counter get();
+    static Type_Counter get() {
+        static const Type_Counter _singleton;
+        return &_singleton; }
     dbprint { out << "counter"; }
 }
 class Type_Expression : Type_Base {
     toString { return "expression"; }
-    static Type_Expression get();
+    static Type_Expression get() {
+        static const Type_Expression _singleton;
+        return &_singleton; }
     dbprint { out << "expression"; }
 }
 class Type_FieldListCalculation : Type_Base {
     toString { return "field_list_calculation"; }
-    static Type_FieldListCalculation get();
+    static Type_FieldListCalculation get() {
+        static const Type_FieldListCalculation _singleton;
+        return &_singleton; }
     dbprint { out << "field_list_calculation"; }
 }
 class Type_Meter : Type_Base {
     toString { return "meter"; }
-    static Type_Meter get();
+    static Type_Meter get() {
+        static const Type_Meter _singleton;
+        return &_singleton; }
     dbprint { out << "meter"; }
 }
 class Type_Register : Type_Base {
     toString { return "register"; }
-    static Type_Register get();
+    static Type_Register get() {
+        static const Type_Register _singleton;
+        return &_singleton; }
     dbprint { out << "register"; }
 }
 class Type_AnyTable : Type_Base {
     toString { return "table"; }
-    static Type_AnyTable get();
+    static Type_AnyTable get() {
+        static const Type_AnyTable _singleton;
+        return &_singleton; }
     dbprint { out << "table"; }
 }
 
@@ -84,9 +98,9 @@ abstract HeaderOrMetadata : IAnnotated {
     Annotations                 annotations;
     NullOK Type_StructLike      type = nullptr;
 
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     HeaderOrMetadata(ID n, Type_StructLike t)
-    : type_name(t->name), name(n), annotations(Annotations::empty), type(t) {}
+    : type_name(t->name), name(n), annotations(&Annotations::empty), type(t) {}
     dbprint { out << type_name << ' ' << name; }
 }
 
@@ -198,7 +212,7 @@ class Primitive : Operation {
         operands.push_back(a1); operands.push_back(a2); operands.push_back(a3); }
     virtual bool isOutput(int operand_index) const;
     virtual unsigned inferOperandTypes() const;
-    virtual Type inferOperandType(int operand) const;
+    virtual const Type *inferOperandType(int operand) const;
     virtual void typecheck() const;
 #apply
     stringOp = name;
@@ -208,9 +222,9 @@ class Primitive : Operation {
 class FieldList : IAnnotated {
     optional ID                 name;
     bool                        payload = false;
-    optional Annotations        annotations = Annotations::empty;
+    optional Annotations        annotations = &Annotations::empty;
     inline Vector<Expression>   fields = {};
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
 }
 
 class FieldListCalculation : IAnnotated {
@@ -219,8 +233,8 @@ class FieldListCalculation : IAnnotated {
     NullOK FieldList     input_fields = nullptr;
     NullOK NameList      algorithm = nullptr;
     int                  output_width = 0;
-    optional Annotations annotations = Annotations::empty;
-    Annotations getAnnotations() const override { return annotations; }
+    optional Annotations annotations = &Annotations::empty;
+    const Annotations *getAnnotations() const override { return annotations; }
 }
 
 class CalculatedField : IAnnotated {
@@ -234,7 +248,7 @@ class CalculatedField : IAnnotated {
     }
     safe_vector<update_or_verify> specs = {};
     Annotations                 annotations;
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     visit_children {
         v.visit(field, "field");
         for (auto &s : specs) v.visit(s.cond, s.name.name);
@@ -243,8 +257,8 @@ class CalculatedField : IAnnotated {
 
 class ParserValueSet : IAnnotated {
     ID                          name;
-    optional Annotations        annotations = Annotations::empty;
-    Annotations getAnnotations() const override { return annotations; }
+    optional Annotations        annotations = &Annotations::empty;
+    const Annotations *getAnnotations() const override { return annotations; }
     dbprint { out << node_type_name() << " " << name; }
     toString { return node_type_name() + " " + name; }
 }
@@ -263,7 +277,7 @@ class V1Parser :IAnnotated {
     ID                          parse_error = {};
     bool                        drop = false;
     Annotations                 annotations;
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     toString { return node_type_name() + " " + name; }
 }
 
@@ -271,11 +285,11 @@ class ParserException {}
 
 abstract Attached : IInstance, IAnnotated {
     optional ID                 name;
-    optional Annotations        annotations = Annotations::empty;
+    optional Annotations        annotations = &Annotations::empty;
     cstring Name() const override { return name; }
     virtual const char *kind() const = 0;
     Type getType() const override { return Type_Unknown::get(); }
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     virtual bool indexed() const { return false; }
     Attached *clone_rename(const char *ext) const {
         Attached *rv = clone();
@@ -308,7 +322,7 @@ class Counter : CounterOrMeter {
     int         max_width = -1;
     int         min_width = -1;
     const char *kind() const override { return "stats"; }
-    const Type *getType() const override { return Type_Counter::get(); }
+    Type getType() const override { return Type_Counter::get(); }
 }
 
 class Meter : CounterOrMeter {
@@ -352,9 +366,9 @@ class ActionFunction : IAnnotated {
     optional ID                 name;
     inline Vector<Primitive>    action = {};
     safe_vector<ActionArg>      args = {};
-    optional Annotations        annotations = Annotations::empty;
+    optional Annotations        annotations = &Annotations::empty;
 
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     ActionArg arg(cstring n) const {
         for (auto a : args)
             if (a->name == n)
@@ -402,10 +416,10 @@ class V1Table : IInstance, IAnnotated {
     bool                        default_action_is_const = false;
     NullOK Vector<Expression>   default_action_args = 0;
     inline TableProperties      properties = {};  // non-standard properties
-    optional Annotations        annotations = Annotations::empty;
+    optional Annotations        annotations = &Annotations::empty;
 
     void addProperty(Property prop) { properties.push_back(prop); }
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     toString { return node_type_name() + " " + name; }
     cstring Name() const override { return name; }
     Type getType() const override { return Type_AnyTable::get(); }
@@ -419,7 +433,7 @@ class V1Control : IAnnotated {
     V1Control(ID n) : name(n), code(new Vector<Expression>()) {}
     V1Control(Util::SourceInfo si, ID n) : Node(si), name(n), code(new Vector<Expression>()) {}
 #apply
-    Annotations getAnnotations() const override { return annotations; }
+    const Annotations *getAnnotations() const override { return annotations; }
     toString { return node_type_name() + " " + name; }
 }
 
@@ -432,7 +446,7 @@ class AttribLocal : Expression, IDeclaration {
 class AttribLocals : ISimpleNamespace {
     inline NameMap<AttribLocal> locals = {};
 #nodbprint
-    Util::Enumerator<IDeclaration> *getDeclarations() const override {
+    Util::Enumerator<const IDeclaration *> *getDeclarations() const override {
         return locals.valueEnumerator()->as<const IDeclaration *>(); }
     IDeclaration getDeclByName(cstring name) const override { return locals[name]; }
 }
