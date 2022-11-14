@@ -62,7 +62,7 @@ class ParserState : ISimpleNamespace, Declaration, IAnnotated {
     NullOK Expression                   selectExpression;
 
     const Annotations *getAnnotations() const override { return annotations; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return components.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return components.getDeclaration(name); }
@@ -91,7 +91,7 @@ class P4Parser : Type_Declaration, INestedNamespace, ISimpleNamespace, IApply, I
     const TypeParameters *getTypeParameters() const override { return type->getTypeParameters(); }
     std::vector<INamespace> getNestedNamespaces() const override {
         return { type->typeParameters, type->applyParams, constructorParams }; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return parserLocals.getDeclarations()->concat(states.getDeclarations()); }
     IDeclaration getDeclByName(cstring name) const override {
         auto decl = parserLocals.getDeclaration(name);
@@ -126,7 +126,7 @@ class P4Control : Type_Declaration, INestedNamespace, ISimpleNamespace, IApply, 
     const TypeParameters *getTypeParameters() const override { return type->getTypeParameters(); }
     std::vector<INamespace> getNestedNamespaces() const override {
         return { type->typeParameters, type->applyParams, constructorParams }; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return controlLocals.getDeclarations(); }
     const Type_Method *getApplyMethodType() const override { return type->getApplyMethodType(); }
     const ParameterList *getApplyParameters() const override { return type->getApplyParameters(); }
@@ -149,7 +149,7 @@ class P4Action : Declaration, ISimpleNamespace, IAnnotated, IFunctional {
     optional Annotations        annotations = &Annotations::empty;
     ParameterList               parameters;
     BlockStatement              body;
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return parameters->getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return parameters->getDeclByName(name); }
@@ -160,7 +160,7 @@ class P4Action : Declaration, ISimpleNamespace, IAnnotated, IFunctional {
 class Type_Error : ISimpleNamespace, Type_Declaration {
     static const cstring error = "error";
     optional inline IndexedVector<Declaration_ID> members;
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
@@ -170,7 +170,7 @@ class Type_Error : ISimpleNamespace, Type_Declaration {
 // Not a subclass of IDeclaration
 class Declaration_MatchKind : ISimpleNamespace {
     optional inline IndexedVector<Declaration_ID> members;
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
@@ -283,7 +283,7 @@ class Property : Declaration, IAnnotated {
 class TableProperties : ISimpleNamespace {
     optional inline IndexedVector<Property> properties;
     toString{ return "TableProperties(" + Util::toString(properties.size()) + ")"; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return properties.getDeclarations(); }
     Property getProperty(cstring name) const {
         return properties.getDeclaration<Property>(name); }
@@ -410,7 +410,7 @@ class P4Program : IGeneralNamespace {
     /// - we allow overloaded function-like objects.
     /// - not all objects in a P4Program are declarations (e.g., match_kind is not).
     optional inline Vector<Node> objects;
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override;
+    Util::Enumerator<IDeclaration>* getDeclarations() const override;
     validate{ objects.check_null(); }
     static const cstring main = "main";
 #apply
@@ -454,7 +454,7 @@ class BlockStatement : Statement, ISimpleNamespace, IAnnotated {
     optional inline IndexedVector<StatOrDecl>   components;
     IDeclaration getDeclByName(cstring name) const override {
         return components.getDeclaration(name); }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return components.getDeclarations(); }
     void push_back(StatOrDecl st) { components.push_back(st); }
     const Annotations *getAnnotations() const override { return annotations; }
@@ -502,7 +502,7 @@ class Function : Declaration, IFunctional, ISimpleNamespace, INestedNamespace {
     ParameterList getParameters() const override {
         return type->parameters;
     }
-    Util::Enumerator<const IDeclaration *> *getDeclarations() const override {
+    Util::Enumerator<IDeclaration> *getDeclarations() const override {
         return type->parameters->getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return type->parameters->getDeclByName(name); }

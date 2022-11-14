@@ -27,6 +27,11 @@ limitations under the License.
 #include <vector>
 
 #include "lib/cstring.h"
+#include "config.h"
+
+#if !HAVE_LIBGC
+#include "ir/shared_ptr.h"  // for dynamic_pointer_cast
+#endif
 
 namespace Util {
 enum class EnumeratorState { NotStarted, Valid, PastEnd };
@@ -295,7 +300,11 @@ class AsEnumerator final : public Enumerator<S> {
 
     S getCurrent() const {
         T current = input->getCurrent();
+#if HAVE_LIBGC
         return dynamic_cast<S>(current);
+#else  /* !HAVE_LIBC */
+        return dynamic_pointer_cast<S>(current);
+#endif
     }
 };
 

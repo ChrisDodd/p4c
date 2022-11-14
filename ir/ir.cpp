@@ -59,25 +59,22 @@ const Type_Method *Type_Package::getConstructorMethodType() const {
     return new Type_Method(getTypeParameters(), this, constructorParams, getName());
 }
 
-Util::Enumerator<const IR::IDeclaration *> *IGeneralNamespace::getDeclsByName(cstring name) const {
-    std::function<bool(const IDeclaration *)> filter = [name](const IDeclaration *d) {
-        CHECK_NULL(d);
-        return name == d->getName().name;
-    };
+Util::Enumerator<IR::Ptr<IR::IDeclaration>> *IGeneralNamespace::getDeclsByName(cstring name) const {
+    std::function<bool(const IDeclaration *)> filter =
+            [name](const IDeclaration *d)
+            { CHECK_NULL(d); return name == d->getName().name; };
     return getDeclarations()->where(filter);
 }
 
-Util::Enumerator<const IDeclaration *> *INestedNamespace::getDeclarations() const {
-    Util::Enumerator<const IDeclaration *> *rv = nullptr;
+Util::Enumerator<IR::Ptr<IDeclaration>> *INestedNamespace::getDeclarations() const {
+    Util::Enumerator<IR::Ptr<IDeclaration>> *rv = nullptr;
     for (auto nested : getNestedNamespaces()) {
         if (nested) {
             if (rv)
                 rv = rv->concat(nested->getDeclarations());
             else
-                rv = nested->getDeclarations();
-        }
-    }
-    return rv ? rv : new Util::EmptyEnumerator<const IDeclaration *>;
+                rv = nested->getDeclarations(); } }
+    return rv ? rv : new Util::EmptyEnumerator<IR::Ptr<IDeclaration>>;
 }
 
 bool IFunctional::callMatches(const Vector<Argument> *arguments) const {
@@ -231,9 +228,10 @@ const IR::CompileTimeValue *InstantiatedBlock::findParameterValue(cstring paramN
     return getValue(param->getNode());
 }
 
-Util::Enumerator<const IDeclaration *> *P4Program::getDeclarations() const {
-    return objects.getEnumerator()->as<const IDeclaration *>()->where(
-        [](const IDeclaration *d) { return d != nullptr; });
+Util::Enumerator<IR::Ptr<IDeclaration>> *P4Program::getDeclarations() const {
+    return objects.getEnumerator()
+            ->as<IR::Ptr<IDeclaration>>()
+            ->where([](const IDeclaration *d) { return d != nullptr; });
 }
 
 const IR::PackageBlock *ToplevelBlock::getMain() const {

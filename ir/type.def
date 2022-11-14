@@ -138,9 +138,9 @@ class Parameter : Declaration, IAnnotated {
 class ParameterList : ISimpleNamespace {
     optional inline IndexedVector<Parameter> parameters;
     validate{ parameters.check_null(); }
-    Util::Enumerator<const Parameter *>* getEnumerator() const {
+    Util::Enumerator<Parameter>* getEnumerator() const {
         return parameters.getEnumerator(); }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return parameters.getDeclarations(); }
     size_t size() const { return parameters.size(); }
     bool empty() const { return size() == 0; }
@@ -224,7 +224,7 @@ class Type_MatchKind : Type_Base {
 
 class TypeParameters : ISimpleNamespace {
     optional inline IndexedVector<Type_Var> parameters;
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return parameters.getDeclarations(); }
     bool empty() const { return parameters.empty(); }
     size_t size() const { return parameters.size(); }
@@ -261,7 +261,7 @@ abstract Type_StructLike : Type_Declaration, INestedNamespace, ISimpleNamespace,
     const TypeParameters *getTypeParameters() const override { return typeParameters; }
     std::vector<INamespace> getNestedNamespaces() const override { return { typeParameters }; }
     const Annotations *getAnnotations() const override { return annotations; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return fields.getDeclarations(); }
     StructField getField(cstring name) const {
         return fields.getDeclaration<StructField>(name); }
@@ -424,7 +424,7 @@ abstract Type_ArchBlock : Type_Declaration, IMayBeGenericType, IAnnotated, ISimp
     optional TypeParameters typeParameters = new TypeParameters;
     const Annotations *getAnnotations() const override { return annotations; }
     const TypeParameters *getTypeParameters() const override { return typeParameters; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return typeParameters->getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return typeParameters->getDeclByName(name); }
@@ -436,7 +436,7 @@ class Type_Package : Type_ArchBlock, IContainer, ISimpleNamespace {
     const Type_Method *getConstructorMethodType() const override;
     ParameterList getConstructorParameters() const override { return constructorParams; }
     toString{ return cstring("package ") + externalName(); }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return typeParameters->getDeclarations()->concat(constructorParams->getDeclarations()); }
     IDeclaration getDeclByName(cstring name) const override {
         auto decl = constructorParams->getDeclByName(name);
@@ -548,7 +548,7 @@ class Type_Enum : Type_Declaration, ISimpleNamespace, IAnnotated {
     optional Annotations annotations = &Annotations::empty;
     inline IndexedVector<Declaration_ID> members;
     const Annotations *getAnnotations() const override { return annotations; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
@@ -569,7 +569,7 @@ class Type_SerEnum : Type_Declaration, ISimpleNamespace, IAnnotated {
     Type type;
     inline IndexedVector<SerEnumMember> members;
     const Annotations *getAnnotations() const override { return annotations; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return members.getDeclarations(); }
     IDeclaration getDeclByName(cstring name) const override {
         return members.getDeclaration(name); }
@@ -612,7 +612,7 @@ abstract Type_MethodBase : Type, IMayBeGenericType, ISimpleNamespace {
     void dbprint(std::ostream& out) const override;
     toString { return "<Method>"; }
     const Type *getP4Type() const override { return nullptr; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
         return typeParameters->getDeclarations()->concat(parameters->getDeclarations()); }
     IDeclaration getDeclByName(cstring name) const override {
         auto decl = parameters->getDeclByName(name);
@@ -670,7 +670,7 @@ class Method : Declaration, IAnnotated, IFunctional, ISimpleNamespace {
     // annotations can refer to parameters, so need to look them up in scope
     IDeclaration getDeclByName(cstring name) const override {
         return type->parameters->getDeclByName(name); }
-    Util::Enumerator<const IDeclaration *> *getDeclarations() const override {
+    Util::Enumerator<IDeclaration> *getDeclarations() const override {
         return type->parameters->getDeclarations(); }
 }
 
@@ -704,9 +704,9 @@ class Type_Extern : Type_Declaration, INestedNamespace, IGeneralNamespace,
     optional Annotations annotations = &Annotations::empty;
 
     std::vector<INamespace> getNestedNamespaces() const override { return { typeParameters }; }
-    Util::Enumerator<const IDeclaration *>* getDeclarations() const override {
-        return attributes.valueEnumerator()->as<const IDeclaration*>()
-            ->concat(methods.getEnumerator()->as<const IDeclaration*>()); }
+    Util::Enumerator<IDeclaration>* getDeclarations() const override {
+        return attributes.valueEnumerator()->as<IR::Ptr<IDeclaration>>()
+            ->concat(methods.getEnumerator()->as<IR::Ptr<IDeclaration>>()); }
     virtual const TypeParameters *getTypeParameters() const override { return typeParameters; }
     validate{ methods.check_null(); }
     const Annotations *getAnnotations() const override { return annotations; }

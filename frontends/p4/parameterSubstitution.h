@@ -32,13 +32,13 @@ class ParameterSubstitution : public IHasDbPrint {
  protected:
     // Parameter names are unique for a procedure, so each name
     // should show up only once.
-    std::map<cstring, const IR::Argument *> parameterValues;
+    std::map<cstring, IR::Ptr<IR::Argument>>  parameterValues;
     /// Map from parameter name to parameter.
-    std::map<cstring, const IR::Parameter *> parametersByName;
+    std::map<cstring, IR::Ptr<IR::Parameter>> parametersByName;
     /// Parameters in the order they were added.
-    std::vector<const IR::Parameter *> parameters;
+    std::vector<IR::Ptr<IR::Parameter>>     parameters;
     /// If created using populate this is non-null.
-    const IR::ParameterList *paramList = nullptr;
+    IR::Ptr<IR::ParameterList>              paramList;
 
     bool containsName(cstring name) const {
         return parameterValues.find(name) != parameterValues.end();
@@ -74,14 +74,14 @@ class ParameterSubstitution : public IHasDbPrint {
     void populate(const IR::ParameterList *params, const IR::Vector<IR::Argument> *args);
 
     /// Returns parameters in the order they were added
-    Util::Enumerator<const IR::Parameter *> *getParametersInArgumentOrder() const {
-        return Util::Enumerator<const IR::Parameter *>::createEnumerator(parameters);
-    }
+    Util::Enumerator<IR::Ptr<IR::Parameter>> *getParametersInArgumentOrder() const
+    { return Util::Enumerator<IR::Ptr<IR::Parameter>>::createEnumerator(parameters); }
 
     /// Returns parameters in the order of the parameter list.
     /// Only works if parameters were inserted using populate.
-    Util::Enumerator<const IR::Parameter *> *getParametersInOrder() const {
-        if (paramList == nullptr) return new Util::EmptyEnumerator<const IR::Parameter *>;
+    Util::Enumerator<IR::Ptr<IR::Parameter>> *getParametersInOrder() const {
+        if (paramList == nullptr)
+            return new Util::EmptyEnumerator<IR::Ptr<IR::Parameter>>;
         return paramList->getEnumerator();
     }
 

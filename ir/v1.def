@@ -446,8 +446,8 @@ class AttribLocal : Expression, IDeclaration {
 class AttribLocals : ISimpleNamespace {
     inline NameMap<AttribLocal> locals = {};
 #nodbprint
-    Util::Enumerator<const IDeclaration *> *getDeclarations() const override {
-        return locals.valueEnumerator()->as<const IDeclaration *>(); }
+    Util::Enumerator<IDeclaration> *getDeclarations() const override {
+        return locals.valueEnumerator()->as<IR::Ptr<IDeclaration>>(); }
     IDeclaration getDeclByName(cstring name) const override { return locals[name]; }
 }
 

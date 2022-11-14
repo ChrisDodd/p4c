@@ -98,7 +98,7 @@ class P4RuntimeArchHandlerV1Model final : public P4RuntimeArchHandlerCommon<Arch
             auto structType = typeArg->to<IR::Type_StructLike>();
             controlPlaneName = structType->controlPlaneName();
         } else if (auto *typeName = typeArg->to<IR::Type_Name>()) {
-            auto *referencedType = refMap->getDeclaration(typeName->path, true);
+            const IR::IDeclaration *referencedType = refMap->getDeclaration(typeName->path, true);
             CHECK_NULL(referencedType);
             controlPlaneName = referencedType->controlPlaneName();
         } else {

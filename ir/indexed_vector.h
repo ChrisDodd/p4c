@@ -37,7 +37,7 @@ namespace IR {
  */
 template <class T>
 class IndexedVector : public Vector<T> {
-    ordered_map<cstring, const IDeclaration *> declarations;
+    ordered_map<cstring, IR::Ptr<IDeclaration>> declarations;
     bool invalid = false;  // set when an error occurs; then we don't
                            // expect the validity check to succeed.
 
@@ -92,21 +92,19 @@ class IndexedVector : public Vector<T> {
     // how to enforce this property, though.
     typedef typename Vector<T>::iterator iterator;
 
-    const IDeclaration *getDeclaration(cstring name) const {
+    IR::Ptr<IDeclaration> getDeclaration(cstring name) const {
         auto it = declarations.find(name);
         if (it == declarations.end()) return nullptr;
         return it->second;
     }
     template <class U>
-    const U *getDeclaration(cstring name) const {
+    IR::Ptr<U> getDeclaration(cstring name) const {
         auto it = declarations.find(name);
         if (it == declarations.end()) return nullptr;
-        return it->second->template to<U>();
-    }
-    Util::Enumerator<const IDeclaration *> *getDeclarations() const {
-        return Util::Enumerator<const IDeclaration *>::createEnumerator(
-            Values(declarations).begin(), Values(declarations).end());
-    }
+        return it->second->template to<U>(); }
+    Util::Enumerator<IR::Ptr<IDeclaration>> *getDeclarations() const {
+        return Util::Enumerator<IR::Ptr<IDeclaration>>::createEnumerator(
+            Values(declarations).begin(), Values(declarations).end()); }
     iterator erase(iterator i) {
         removeFromMap(*i);
         return Vector<T>::erase(i);

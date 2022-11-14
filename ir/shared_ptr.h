@@ -59,6 +59,7 @@ template<class T> class shared_ptr {
     const       T *ptr;
 
  public:
+    typedef T element_type;
     shared_ptr() : ptr(nullptr) {}
     shared_ptr(nullptr_t) : ptr(nullptr) {}                             // NOLINT(runtime/explicit)
     shared_ptr(const shared_ptr &a) { if ((ptr = a.ptr)) ptr->refcount++; }
@@ -102,5 +103,11 @@ template<class T> class shared_ptr {
 };
 
 }  // namespace IR
+
+template<class T, class U>
+T dynamic_pointer_cast(const IR::shared_ptr<U>& r) noexcept {
+    return T(dynamic_cast<const typename T::element_type *>(r.get()));
+}
+
 
 #endif /* _IR_SHARED_PTR_H_ */

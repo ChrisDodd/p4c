@@ -202,15 +202,12 @@ class Vector : public VectorBase {
     virtual void parallel_visit_children(Visitor &v);
     virtual void parallel_visit_children(Visitor &v) const;
     void toJSON(JSONGenerator &json) const override;
-    Util::Enumerator<const T *> *getEnumerator() const {
-        return Util::Enumerator<IR::Ptr<T>>::createEnumerator(vec)->template map<const T *>(
-            [](const IR::Ptr<T> &a) -> const T * { return a; });
-    }
+    Util::Enumerator<IR::Ptr<T>> *getEnumerator() const {
+        return Util::Enumerator<IR::Ptr<T>>::createEnumerator(vec); }
     template <typename S>
-    Util::Enumerator<const S *> *only() const {
+    Util::Enumerator<IR::Ptr<S>> *only() const {
         std::function<bool(const T *)> filter = [](const T *d) { return d->template is<S>(); };
-        return getEnumerator()->where(filter)->template as<const S *>();
-    }
+        return getEnumerator()->where(filter)->template as<const S *>(); }
 };
 
 }  // namespace IR

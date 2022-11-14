@@ -24,12 +24,12 @@ limitations under the License.
 
 namespace P4 {
 
-static const std::vector<const IR::IDeclaration *> empty;
+static const std::vector<IR::Ptr<IR::IDeclaration>> empty;
 
 ResolutionContext::ResolutionContext() { anyOrder = P4CContext::get().options().isv1(); }
 
-const std::vector<const IR::IDeclaration *> *ResolutionContext::resolve(
-    IR::ID name, P4::ResolutionType type) const {
+const std::vector<IR::Ptr<IR::IDeclaration>> *
+ResolutionContext::resolve(IR::ID name, P4::ResolutionType type) const {
     const Context *ctxt = nullptr;
     while (auto scope = findContext<IR::INamespace>(ctxt)) {
         auto *rv = lookup(scope, name, type);
@@ -39,12 +39,13 @@ const std::vector<const IR::IDeclaration *> *ResolutionContext::resolve(
     return &empty;
 }
 
-const std::vector<const IR::IDeclaration *> *ResolutionContext::lookup(
-    const IR::INamespace *current, IR::ID name, P4::ResolutionType type) const {
+const std::vector<IR::Ptr<IR::IDeclaration>> *
+ResolutionContext::lookup(const IR::INamespace *current, IR::ID name,
+                          P4::ResolutionType type) const {
     LOG2("Trying to resolve in " << current->toString());
 
     if (auto gen = current->to<IR::IGeneralNamespace>()) {
-        Util::Enumerator<const IR::IDeclaration *> *decls = gen->getDeclsByName(name);
+        Util::Enumerator<IR::Ptr<IR::IDeclaration>> *decls = gen->getDeclsByName(name);
         switch (type) {
             case P4::ResolutionType::Any:
                 break;
@@ -139,7 +140,7 @@ const std::vector<const IR::IDeclaration *> *ResolutionContext::lookup(
         }
         if (decl) {
             LOG3("Resolved in " << dbp(current->getNode()));
-            auto result = new std::vector<const IR::IDeclaration *>();
+            auto result = new std::vector<IR::Ptr<IR::IDeclaration>>();
             result->push_back(decl);
             return result;
         }
@@ -158,7 +159,8 @@ const std::vector<const IR::IDeclaration *> *ResolutionContext::lookup(
     return &empty;
 }
 
-const std::vector<const IR::IDeclaration *> *ResolutionContext::lookupMatchKind(IR::ID name) const {
+const std::vector<IR::Ptr<IR::IDeclaration>> *
+ResolutionContext::lookupMatchKind(IR::ID name) const {
     if (auto *global = findContext<IR::P4Program>()) {
         for (const IR::Node *obj : global->objects) {
             if (auto *match_kind = obj->to<IR::Declaration_MatchKind>()) {
@@ -200,14 +202,16 @@ const IR::Vector<IR::Argument> *ResolutionContext::methodArguments(cstring name)
     return nullptr;
 }
 
-const IR::IDeclaration *ResolutionContext::resolveUnique(IR::ID name, P4::ResolutionType type,
-                                                         const IR::INamespace *ns) const {
+IR::Ptr<IR::IDeclaration>
+ResolutionContext::resolveUnique(IR::ID name,
+                                 P4::ResolutionType type,
+                                 const IR::INamespace *ns) const {
     auto decls = ns ? lookup(ns, name, type) : resolve(name, type);
     // Check overloaded symbols.
     const IR::Vector<IR::Argument> *arguments;
     if (decls->size() > 1 && (arguments = methodArguments(name))) {
-        decls = Util::Enumerator<const IR::IDeclaration *>::createEnumerator(*decls)
-                    ->where([arguments](const IR::IDeclaration *d) {
+        decls = Util::Enumerator<IR::Ptr<IR::IDeclaration>>::createEnumerator(*decls)->
+                where([arguments](const IR::IDeclaration *d) {
                         auto func = d->to<IR::IFunctional>();
                         if (func == nullptr) return true;
                         return func->callMatches(arguments);
@@ -226,8 +230,8 @@ const IR::IDeclaration *ResolutionContext::resolveUnique(IR::ID name, P4::Resolu
     return nullptr;
 }
 
-const IR::IDeclaration *ResolutionContext::getDeclaration(const IR::Path *path,
-                                                          bool notNull) const {
+IR::Ptr<IR::IDeclaration>
+ResolutionContext::getDeclaration(const IR::Path *path, bool notNull) const {
     const IR::IDeclaration *result = nullptr;
     const Context *ctxt = nullptr;
     if (findContext<IR::KeyElement>(ctxt) && ctxt->child_index == 2) {
@@ -253,8 +257,8 @@ const IR::IDeclaration *ResolutionContext::getDeclaration(const IR::Path *path,
     return result;
 }
 
-const IR::IDeclaration *ResolutionContext::getDeclaration(const IR::This *pointer,
-                                                          bool notNull) const {
+IR::Ptr<IR::IDeclaration>
+ResolutionContext::getDeclaration(const IR::This *pointer, bool notNull) const {
     auto result = findContext<IR::Declaration_Instance>();
     if (findContext<IR::Function>() == nullptr || result == nullptr)
         ::error(ErrorType::ERR_INVALID,
@@ -263,7 +267,7 @@ const IR::IDeclaration *ResolutionContext::getDeclaration(const IR::This *pointe
     return result;
 }
 
-const IR::Type *ResolutionContext::resolveType(const IR::Type *type) const {
+IR::Ptr<IR::Type> ResolutionContext::resolveType(const IR::Type *type) const {
     if (auto tname = type->to<IR::Type_Name>())
         return resolveUnique(tname->path->name, ResolutionType::Type)->to<IR::Type>();
     return type;
@@ -298,9 +302,9 @@ void ResolveReferences::checkShadowing(const IR::INamespace *ns) const {
     if (auto nest = ns->to<IR::INestedNamespace>()) {
         // boost bug -- trying to iterate with an adaptor over an unnamed temp crashes
         auto temp = nest->getNestedNamespaces();
-        for (auto nn : boost::adaptors::reverse(temp)) decls = nn->getDeclarations()->concat(decls);
-    }
-    for (auto *decl : *decls) {
+        for (auto nn : boost::adaptors::reverse(temp))
+            decls = nn->getDeclarations()->concat(decls); }
+    for (const IR::IDeclaration *decl : *decls) {
         const IR::Node *node = decl->getNode();
         if (node->is<IR::StructField>()) continue;
 

@@ -151,17 +151,14 @@ class NameMap : public Node {
     void toJSON(JSONGenerator &json) const override;
     static NameMap<T, MAP, COMP, ALLOC> *fromJSON(JSONLoader &json);
 
-    Util::Enumerator<const T *> *valueEnumerator() const {
+    Util::Enumerator<IR::Ptr<T>> *valueEnumerator() const {
         return Util::Enumerator<IR::Ptr<T>>::createEnumerator(Values(symbols).begin(),
-                                                              Values(symbols).end())
-            ->template map<const T *>([](const IR::Ptr<T> &a) -> const T * { return a; });
-    }
+                                                              Values(symbols).end()); }
 
     template <typename S>
-    Util::Enumerator<const S *> *only() const {
+    Util::Enumerator<IR::Ptr<S>> *only() const {
         std::function<bool(const T *)> filter = [](const T *d) { return d->template is<S>(); };
-        return valueEnumerator()->where(filter)->template as<const S *>();
-    }
+        return valueEnumerator()->where(filter)->template as<const S *>(); }
 };
 
 }  // namespace IR

@@ -33,13 +33,13 @@ class ResolutionContext : virtual public Visitor, public DeclarationLookup {
     // Note that all errors have been merged by the parser into
     // a single error { } namespace.
 
-    const std::vector<const IR::IDeclaration *> *lookup(const IR::INamespace *ns, IR::ID name,
-                                                        ResolutionType type) const;
+    const std::vector<IR::Ptr<IR::IDeclaration>> *
+    lookup(const IR::INamespace *ns, IR::ID name, ResolutionType type) const;
 
     // match kinds exist in their own special namespace, made from all the match_kind
     // declarations in the global scope.  Unlike errors, we don't merge those scopes in
     // the parser, so we have to find them and scan them here.
-    const std::vector<const IR::IDeclaration *> *lookupMatchKind(IR::ID name) const;
+    const std::vector<IR::Ptr<IR::IDeclaration>> *lookupMatchKind(IR::ID name) const;
 
     // P4_14 allows things to be used before their declaration while P4_16 (generally)
     // does not, so we will resolve names to things declared later only when translating
@@ -54,19 +54,21 @@ class ResolutionContext : virtual public Visitor, public DeclarationLookup {
     const IR::Vector<IR::Argument> *methodArguments(cstring name) const;
 
     /// Resolve references for @p name, restricted to @p type declarations.
-    const std::vector<const IR::IDeclaration *> *resolve(IR::ID name, ResolutionType type) const;
+    const std::vector<IR::Ptr<IR::IDeclaration>> *resolve(IR::ID name, ResolutionType type) const;
 
     /// Resolve reference for @p name, restricted to @p type declarations, and expect one result.
-    const IR::IDeclaration *resolveUnique(IR::ID name, ResolutionType type,
-                                          const IR::INamespace * = nullptr) const;
+    IR::Ptr<IR::IDeclaration>
+    resolveUnique(IR::ID name, ResolutionType type, const IR::INamespace * = nullptr) const;
 
-    const IR::IDeclaration *resolvePath(const IR::Path *path, bool isType) const;
+    IR::Ptr<IR::IDeclaration> resolvePath(const IR::Path *path, bool isType) const;
 
     // Resolve a refrence to a type @p type.
-    const IR::Type *resolveType(const IR::Type *type) const;
+    IR::Ptr<IR::Type> resolveType(const IR::Type *type) const;
 
-    const IR::IDeclaration *getDeclaration(const IR::Path *path, bool notNull = false) const;
-    const IR::IDeclaration *getDeclaration(const IR::This *, bool notNull = false) const;
+    IR::Ptr<IR::IDeclaration>
+    getDeclaration(const IR::Path *path, bool notNull = false) const override;
+    IR::Ptr<IR::IDeclaration>
+    getDeclaration(const IR::This *, bool notNull = false) const override;
 };
 
 /** Inspector that computes `refMap`: a map from paths to declarations.
