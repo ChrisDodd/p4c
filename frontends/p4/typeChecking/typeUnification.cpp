@@ -283,6 +283,8 @@ bool TypeUnification::unify(const BinaryConstraint *constraint) {
 
     if (src->is<IR::Type_Dontcare>() || dest->is<IR::Type_Dontcare>()) return true;
 
+    if (src->is<IR::Type_InfInt>() && dest->is<IR::Type_InfInt>()) return true;
+
     if (src->is<IR::Type_Any>()) {
         constraints->addUnifiableTypeVariable(src->to<IR::Type_Any>());
         constraints->add(constraint->create(dest, src));

@@ -47,12 +47,12 @@ class ConstantTypeSubstitution : public Transform, ResolutionContext {
         while (repl->is<IR::ITypeVar>()) {
             auto next = subst->get(repl->to<IR::ITypeVar>());
             BUG_CHECK(next != repl, "Cycle in substitutions: %1%", next);
-            if (!next) break;
+            if (!next || next == repl) break;
             repl = next;
         }
         if (repl != cstType) {
             // We may replace a type variable with another one
-            LOG2("Inferred type " << repl << " for " << cst);
+            LOG2("Inferred type " << repl << " for " << cst << " (was " << cstType << ")");
             cst = new IR::Constant(cst->srcInfo, repl, cst->value, cst->base);
         } else {
             LOG2("No type inferred for " << cst << " repl is " << repl);
