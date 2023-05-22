@@ -164,9 +164,11 @@ const IR::Node *PassRepeated::apply_visitor(const IR::Node *program, const char 
 }
 
 const IR::Node *PassRepeatUntil::apply_visitor(const IR::Node *program, const char *name) {
+    unsigned initial_error_count = ::errorCount();
     do {
         running = true;
         program = PassManager::apply_visitor(program, name);
+        if (stop_on_error && ::errorCount() > initial_error_count) break;
     } while (!done());
     return program;
 }
