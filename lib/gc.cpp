@@ -28,11 +28,13 @@ limitations under the License.
 #include <mm_malloc.h>  // NOLINT(build/include_order)
 #endif
 
+#include <dlfcn.h>
 #if HAVE_LIBGC
 #include <gc/gc.h>
 #include <gc/gc_cpp.h>
 #include <gc/gc_mark.h>
 #endif /* HAVE_LIBGC */
+#include <link.h>
 #include <sys/mman.h>
 #if HAVE_EXECINFO_H
 #include <execinfo.h>
@@ -226,6 +228,40 @@ void raw_free(void *ptr) {
 
 }  // namespace
 
+// struct pthread is an internal data structure of the pthreads library, so we
+// can't automatically see its exact type (except perhaps by parsing the
+// executable's debug info in-memory?). Instead, we must fake the definition
+// and size. A type is used here, rather than hard-coding the size in
+// register_tls is so the code is more self-documenting.
+struct pthread {
+    // On Ubuntu 20.04, gdb command "p sizeof(struct pthread)" says 2304.
+    // In practice, I guess a whole page was allocated, so maybe we should use
+    // 4096 here?
+    uint8_t data[2304];
+};
+
+// Register the TLS data of the current thread as a GC root. This allows GC to
+// see any pointers stored in the TLS data. At least libdl stores pointers in
+// TLS. (libdl is used by the DOCA HAL tracing library.) If we don't allow GC
+// to see those, it hands out the same pointer to other clients, which results
+// in nasty memory corruption problems.
+//
+// TODO: This only registers one thread's TLS. We should register TLS for every
+// thread. At present, this does not matter since nvp4c is single-threaded,
+// aside from some hopefully-irrelevant utility threads created outside our
+// code.
+void register_tls() {
+    static bool registered;
+    // Not thread-safe, but neither is realloc()'s similar code.
+    if (registered)
+        return;
+    pthread_t pthI = pthread_self();
+    void *pth = reinterpret_cast<void*>(pthI);
+    void *pthAfter = reinterpret_cast<void*>(pthI + sizeof(struct pthread));
+    GC_add_roots(pth, pthAfter);
+    registered = true;
+}
+
 void *realloc(void *ptr, size_t size) {
     if (!done_init) {
         if (started_init) {
@@ -241,6 +277,7 @@ void *realloc(void *ptr, size_t size) {
         } else {
             started_init = true;
             GC_INIT();
+            register_tls();
             done_init = true;
         }
     }
@@ -268,12 +305,72 @@ void *malloc(size_t size) {
 void free(void *ptr) {
     if (done_init && GC_is_heap_ptr(ptr)) GC_free(ptr);
 }
+#if 1
 void *calloc(size_t size, size_t elsize) {
     size *= elsize;
     void *rv = malloc(size);
     if (rv) memset(rv, 0, size);
     return rv;
 }
+#else
+// An alternative to register_tls() is the code here. It causes every allocation
+// made by libdl to be marked uncollectable, so libgc will never free it even
+// when it can't see references to it. The code for this alternative is more
+// complex, and a bit of a heavy hammer if libgc was to make multiple calls to
+// malloc/realloc/free, some of which it did not store in TLS. Hence, it is not
+// the preferred solution. However, it is left here in case we need to switch
+// technique later.
+static bool libdl_addrs_initialized = false;
+static ElfW(Addr) libdl_addr_min;
+static ElfW(Addr) libdl_addr_after;
+int phdr_iter(struct dl_phdr_info *phdr_info, size_t /* phdr_info_size */, void * /* data */) {
+    if (!strstr(phdr_info->dlpi_name, "libdl.so"))
+        return 0;
+    for (size_t i = 0; i < phdr_info->dlpi_phnum; i++) {
+        const ElfW(Phdr) *phdr = &(phdr_info->dlpi_phdr[i]);
+        if (phdr->p_type != PT_LOAD)
+            continue;
+        auto runtime_base = phdr_info->dlpi_addr;
+        auto file_base = phdr->p_vaddr;
+        auto size = phdr->p_memsz;
+        auto hdr_min = runtime_base + file_base;
+        auto hdr_after = hdr_min + size;
+        if (libdl_addr_min != 0) {
+            libdl_addr_min = std::min(libdl_addr_min, hdr_min);
+            libdl_addr_after = std::max(libdl_addr_after, hdr_after);
+        } else {
+            libdl_addr_min = hdr_min;
+            libdl_addr_after = hdr_after;
+        }
+    }
+    return 0;
+}
+bool is_libdl(void* addr) {
+    if (!libdl_addrs_initialized) {
+        dl_iterate_phdr(phdr_iter, NULL);
+        libdl_addrs_initialized = true;
+    }
+    ElfW(Addr) addrVal = reinterpret_cast<ElfW(Addr)>(addr);
+    bool is_libdl = (addrVal >= libdl_addr_min) && (addrVal < libdl_addr_after);
+    return is_libdl;
+}
+void *calloc(size_t size, size_t elsize) {
+    bool uncollectable = is_libdl(__builtin_extract_return_addr(__builtin_return_address(0)));
+
+    size *= elsize;
+    void *rv;
+    if (uncollectable) {
+        /* We could do the same sbrk thing that malloc does if needed. */
+        if (!done_init)
+            return NULL;
+        rv = GC_malloc_uncollectable(size);
+    } else {
+        rv = malloc(size);
+    }
+    if (rv) memset(rv, 0, size);
+    return rv;
+}
+#endif
 int posix_memalign(void **memptr, size_t alignment, size_t size)
 #ifdef __GLIBC__
     __THROW
