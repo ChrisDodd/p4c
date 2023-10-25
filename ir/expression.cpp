@@ -76,7 +76,7 @@ int IR::Member::msb() const {
     return lsb() + type->width_bits() - 1;
 }
 
-void IR::Constant::handleOverflow(bool noWarning) {
+void IR::Constant::handleOverflow(bool noError) {
     if (type == nullptr) BUG("%1%: Null type in typed constant", this);
     if (type->is<IR::Type_InfInt>()) return;
     auto tb = type->to<IR::Type_Bits>();
@@ -93,7 +93,7 @@ void IR::Constant::handleOverflow(bool noWarning) {
         big_int max = (one << (width - 1)) - 1;
         big_int min = -(one << (width - 1));
         if (value < min || value > max) {
-            if (!noWarning)
+            if (!noError)
                 error(ErrorType::ERR_INVALID, "%1%: signed value does not fit in %2% bits",
                       this, width);
             LOG2("value=" << value << ", min=" << min << ", max=" << max << ", masked="
@@ -103,10 +103,10 @@ void IR::Constant::handleOverflow(bool noWarning) {
         }
     } else {
         if (value < 0) {
-            if (!noWarning)
+            if (!noError)
                 error(ErrorType::ERR_INVALID, "%1%: negative value with unsigned type", this);
         } else if ((value & mask) != value) {
-            if (!noWarning)
+            if (!noError)
                 error(ErrorType::ERR_INVALID, "%1%: value does not fit in %2% bits", this, width);
         }
 

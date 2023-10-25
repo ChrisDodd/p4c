@@ -187,8 +187,8 @@ class Constant : Literal {
     big_int value;
     optional unsigned  base;  /// base used when reading/writing
 #noconstructor
-    /// if noWarning is true, no warning is emitted
-    void handleOverflow(bool noWarning);
+    /// if noError is true, no error is emitted
+    void handleOverflow(bool noError);
     // We need to enumerate all the integer types because we need proper 64-bit handling on
     // 32-bit systems (which ain't long!) and mpz_import is too big a hammer because and it loses
     // the signess of the value.
@@ -215,11 +215,11 @@ class Constant : Literal {
         Literal(Type_InfInt::get()), value(v), base(base) {}
     Constant(Util::SourceInfo si, big_int v, unsigned base = 10) :
         Literal(si, Type_InfInt::get()), value(v), base(base) {}
-    Constant(const Type *t, big_int v, unsigned base = 10, bool noWarning = false) :
-        Literal(t), value(v), base(base) { CHECK_NULL(t); handleOverflow(noWarning); }
+    Constant(const Type *t, big_int v, unsigned base = 10, bool noError = false) :
+        Literal(t), value(v), base(base) { CHECK_NULL(t); handleOverflow(noError); }
     Constant(Util::SourceInfo si, const Type *t, big_int v,
-             unsigned base = 10, bool noWarning = false) :
-        Literal(si, t), value(v), base(base) { CHECK_NULL(t); handleOverflow(noWarning); }
+             unsigned base = 10, bool noError = false) :
+        Literal(si, t), value(v), base(base) { CHECK_NULL(t); handleOverflow(noError); }
 #emit
     static Constant GetMask(unsigned width);
 #end
