@@ -76,7 +76,7 @@ int IR::Member::msb() const {
     return lsb() + type->width_bits() - 1;
 }
 
-void IR::Constant::handleOverflow(bool noError) {
+void IR::Constant::handleOverflow(bool noError, bool isCast) {
     if (type == nullptr) BUG("%1%: Null type in typed constant", this);
     if (type->is<IR::Type_InfInt>()) return;
     auto tb = type->to<IR::Type_Bits>();
@@ -105,7 +105,7 @@ void IR::Constant::handleOverflow(bool noError) {
         if (value < 0) {
             if (!noError)
                 error(ErrorType::ERR_INVALID, "%1%: negative value with unsigned type", this);
-        } else if ((value & mask) != value) {
+        } else if ((value & mask) != value && !isCast) {
             if (!noError)
                 error(ErrorType::ERR_INVALID, "%1%: value does not fit in %2% bits", this, width);
         }
