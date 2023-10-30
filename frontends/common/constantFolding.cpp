@@ -341,7 +341,7 @@ const IR::Node *DoConstantFolding::postorder(IR::UPlus *e) {
 
 const IR::Constant *DoConstantFolding::cast(const IR::Constant *node, unsigned base,
                                             const IR::Type_Bits *type) const {
-    return new IR::Constant(node->srcInfo, type, node->value, base);
+    return new IR::Constant(node->srcInfo, type, node->value, base, true);
 }
 
 const IR::Node *DoConstantFolding::postorder(IR::Add *e) {
