@@ -36,6 +36,7 @@ set (MIDEND_SRCS
   hsIndexSimplify.cpp
   interpreter.cpp
   global_copyprop.cpp
+  global_flow.cpp
   local_copyprop.cpp
   nestedStructs.cpp
   noMatch.cpp
@@ -87,6 +88,7 @@ set (MIDEND_HDRS
   has_side_effects.h
   interpreter.h
   global_copyprop.h
+  global_flow.h
   local_copyprop.h
   midEndLast.h
   nestedStructs.h
