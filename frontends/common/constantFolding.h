@@ -91,6 +91,7 @@ class DoConstantFolding : public Transform, public ResolutionContext {
     const IR::Expression *getConstant(const IR::Expression *expr) const;
 
     /// Statically cast constant @p node to @p type represented in the specified @p base.
+    /// @p noWarning -- supress warnings/errors for when this is an explicit cast
     const IR::Constant *cast(const IR::Constant *node, unsigned base, const IR::Type_Bits *type,
                              bool noWarning = false) const;
 

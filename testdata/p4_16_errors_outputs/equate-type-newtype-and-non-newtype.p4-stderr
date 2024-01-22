@@ -14,7 +14,7 @@ equate-type-newtype-and-non-newtype.p4(4)
   ---- Originating from:
 equate-type-newtype-and-non-newtype.p4(4): Source expression '(Narrow)9w0' produces a result of type 'Narrow' which cannot be assigned to a left-value with type 'tuple<>'
   const tuple<> PSA_CPU_PORT = (Narrow) 0;
-                               ^^^^^^^^^^
+                                        ^
 equate-type-newtype-and-non-newtype.p4(3)
   type bit<9> Narrow;
               ^^^^^^

@@ -868,10 +868,10 @@ const IR::Node *DoConstantFolding::shift(const IR::Operation_Binary *e) {
         shift_amt = right->to<IR::Constant>();
     } else if (typesKnown) {
         auto ei = EnumInstance::resolve(right, typeMap);
-        if (ei == nullptr) return e;
-        if (auto se = ei->to<SerEnumInstance>()) {
+        if (auto se = ei ? ei->to<SerEnumInstance>() : nullptr) {
             shift_amt = se->value->checkedTo<IR::Constant>();
         } else {
+            error(ErrorType::ERR_EXPECTED, "%1%: expected an integer value", right);
             return e;
         }
     } else {
@@ -946,7 +946,7 @@ const IR::Node *DoConstantFolding::postorder(IR::Cast *e) {
         auto type = etype->to<IR::Type_Bits>();
         if (auto arg = expr->to<IR::Constant>()) {
             // Do not emit overflow or mismatch warnings for explicit casts.
-            return cast(arg, arg->base, type, /* noWarning */ !e->implicit);
+            return cast(arg, arg->base, type, true);
         } else if (auto arg = expr->to<IR::BoolLiteral>()) {
             if (type->isSigned || type->size != 1)
                 error(ErrorType::ERR_INVALID, "%1%: Cannot cast %1% directly to %2% (use bit<1>)",
