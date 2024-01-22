@@ -840,10 +840,10 @@ const IR::Node *DoConstantFolding::shift(const IR::Operation_Binary *e) {
         shift_amt = right->to<IR::Constant>();
     } else if (typesKnown) {
         auto ei = EnumInstance::resolve(right, typeMap);
-        if (ei == nullptr) return e;
-        if (auto se = ei->to<SerEnumInstance>()) {
+        if (auto se = ei ? ei->to<SerEnumInstance>() : nullptr) {
             shift_amt = se->value->checkedTo<IR::Constant>();
         } else {
+            error(ErrorType::ERR_EXPECTED, "%1%: expected an integer value", right);
             return e;
         }
     } else {
