@@ -138,6 +138,9 @@ class TypeInferenceBase : public virtual Visitor, public ResolutionContext {
         return unifyBase(false, errorPosition, destType, srcType, errorFormat, errorArgs);
     }
 
+    // make an implicit cast explicit
+    const IR::Expression *implicitCast(const IR::Type *toType, const IR::Expression *exp);
+
     /** Tries to assign sourceExpression to a destination with type destType.
         This may rewrite the sourceExpression, in particular converting InfInt values
         to values with concrete types.

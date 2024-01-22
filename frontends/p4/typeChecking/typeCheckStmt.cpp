@@ -69,8 +69,7 @@ const IR::Node *TypeInferenceBase::postorder(const IR::SwitchStatement *stat) {
             auto lt = getType(c->label);
             if (lt == nullptr) continue;
             if (lt->is<IR::Type_InfInt>() && type->is<IR::Type_Bits>()) {
-                c = new IR::SwitchCase(c->srcInfo, new IR::Cast(c->label->srcInfo, type, c->label),
-                                       c->statement);
+                c = new IR::SwitchCase(c->srcInfo, implicitCast(type, c->label), c->statement);
                 setType(c->label, type);
                 setCompileTimeConstant(c->label);
                 changed = true;

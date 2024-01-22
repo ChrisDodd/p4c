@@ -105,6 +105,7 @@ void TypeMap::setType(const IR::Node *element, const IR::Type *type) {
         if (!implicitlyConvertibleTo(type, existingType))
             BUG("Changing type of %1% in type map from %2% to %3%", dbp(element), dbp(existingType),
                 dbp(type));
+        it->second = type;
         return;
     }
     LOG3("setType " << dbp(element) << " => " << dbp(type));
