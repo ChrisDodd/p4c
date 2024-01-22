@@ -137,6 +137,18 @@ const IR::Type *TypeInference::cloneWithFreshTypeVariables(const IR::IMayBeGener
     return cl->to<IR::Type>();
 }
 
+// Make an implicit cast explicit.  If we're casting a constant value to an
+// explicit bit size, we instead create a new constant with the desired type, so
+// as to generate the correct warning or error for an out-of-range constant literal
+const IR::Expression *TypeInference::implicitCast(const IR::Type *toType,
+                                                  const IR::Expression *exp) {
+    if (auto cst = exp->to<IR::Constant>()) {
+        if (toType->is<IR::Type_Bits>())
+            return new IR::Constant(cst->srcInfo, toType, cst->value, cst->base);
+    }
+    return new IR::Cast(exp->srcInfo, toType, exp);
+}
+
 TypeInference::TypeInference(ReferenceMap *refMap, TypeMap *typeMap, bool readOnly,
                              bool checkArrays)
     : refMap(refMap),
@@ -753,7 +765,7 @@ const IR::Expression *TypeInference::assignment(const IR::Node *errorPosition,
 
     if (initType->is<IR::Type_InfInt>() && !destType->is<IR::Type_InfInt>()) {
         auto toType = destType->getP4Type();
-        sourceExpression = new IR::Cast(toType, sourceExpression);
+        sourceExpression = implicitCast(toType, sourceExpression);
         setType(toType, new IR::Type_Type(destType));
         setType(sourceExpression, destType);
         setCompileTimeConstant(sourceExpression);
@@ -1994,17 +2006,13 @@ const IR::Node *TypeInference::postorder(IR::Operation_Relation *expression) {
         setCompileTimeConstant(getOriginal<IR::Expression>());
         return result;
     } else if (ltype->is<IR::Type_InfInt>() && rtype->is<IR::Type_Bits>()) {
-        auto e = expression->clone();
-        e->left = new IR::Cast(e->left->srcInfo, rtype, e->left);
-        setType(e->left, rtype);
+        expression->left = implicitCast(rtype, expression->left);
+        setType(expression->left, rtype);
         ltype = rtype;
-        expression = e;
     } else if (rtype->is<IR::Type_InfInt>() && ltype->is<IR::Type_Bits>()) {
-        auto e = expression->clone();
-        e->right = new IR::Cast(e->right->srcInfo, ltype, e->right);
-        setType(e->right, ltype);
+        expression->right = implicitCast(ltype, expression->right);
+        setType(expression->right, ltype);
         rtype = ltype;
-        expression = e;
     }
 
     if (equTest) {
@@ -2072,18 +2080,16 @@ const IR::Node *TypeInference::postorder(IR::Concat *expression) {
     const IR::Type *resultType = IR::Type_Bits::get(bl->size + br->size, bl->isSigned);
 
     if (castLeft) {
-        auto e = expression->clone();
-        e->left = new IR::Cast(e->left->srcInfo, bl, e->left);
-        if (isCompileTimeConstant(expression->left)) setCompileTimeConstant(e->left);
-        setType(e->left, ltype);
-        expression = e;
+        bool ctc = isCompileTimeConstant(expression->left);
+        expression->left = implicitCast(bl, expression->left);
+        if (ctc) setCompileTimeConstant(expression->left);
+        setType(expression->left, ltype);
     }
     if (castRight) {
-        auto e = expression->clone();
-        e->right = new IR::Cast(e->right->srcInfo, br, e->right);
-        if (isCompileTimeConstant(expression->right)) setCompileTimeConstant(e->right);
-        setType(e->right, rtype);
-        expression = e;
+        bool ctc = isCompileTimeConstant(expression->right);
+        expression->right = implicitCast(br, expression->right);
+        if (ctc) setCompileTimeConstant(expression->right);
+        setType(expression->right, rtype);
     }
 
     resultType = canonicalize(resultType);
@@ -2558,7 +2564,7 @@ const IR::Node *TypeInference::binaryArith(const IR::Operation_Binary *expressio
         auto leftResultType = br;
         if (castLeft && !br) leftResultType = bl;
         auto e = expression->clone();
-        e->left = new IR::Cast(e->left->srcInfo, leftResultType, e->left);
+        e->left = implicitCast(leftResultType, e->left);
         setType(e->left, leftResultType);
         if (isCompileTimeConstant(expression->left)) {
             e->left = constantFold(e->left);
@@ -2571,7 +2577,7 @@ const IR::Node *TypeInference::binaryArith(const IR::Operation_Binary *expressio
         auto e = expression->clone();
         auto rightResultType = bl;
         if (castRight && !bl) rightResultType = br;
-        e->right = new IR::Cast(e->right->srcInfo, rightResultType, e->right);
+        e->right = implicitCast(rightResultType, e->right);
         setType(e->right, rightResultType);
         if (isCompileTimeConstant(expression->right)) {
             e->right = constantFold(e->right);
@@ -2734,14 +2740,14 @@ const IR::Node *TypeInference::typeSet(const IR::Operation_Binary *expression) {
         }
     } else if (bl == nullptr && br != nullptr) {
         auto e = expression->clone();
-        e->left = new IR::Cast(e->left->srcInfo, rtype, e->left);
+        e->left = implicitCast(rtype, e->left);
         setCompileTimeConstant(e->left);
         expression = e;
         sameType = rtype;
         setType(e->left, sameType);
     } else if (bl != nullptr && br == nullptr) {
         auto e = expression->clone();
-        e->right = new IR::Cast(e->right->srcInfo, ltype, e->right);
+        e->right = implicitCast(ltype, e->right);
         setCompileTimeConstant(e->right);
         expression = e;
         setType(e->right, ltype);
@@ -2982,7 +2988,7 @@ const IR::Node *TypeInference::postorder(IR::Cast *expression) {
         }
         if (rhs != expression->expr) {
             // if we are here we have performed a substitution on the rhs
-            expression = new IR::Cast(expression->srcInfo, expression->destType, rhs);
+            expression->expr = rhs;
             sourceType = getTypeType(expression->destType);
         }
         if (!canCastBetween(castType, sourceType))
@@ -4068,8 +4074,7 @@ const IR::Node *TypeInference::postorder(IR::SwitchStatement *stat) {
             auto lt = getType(c->label);
             if (lt == nullptr) continue;
             if (lt->is<IR::Type_InfInt>() && type->is<IR::Type_Bits>()) {
-                c = new IR::SwitchCase(c->srcInfo, new IR::Cast(c->label->srcInfo, type, c->label),
-                                       c->statement);
+                c = new IR::SwitchCase(c->srcInfo, implicitCast(type, c->label), c->statement);
                 setType(c->label, type);
                 setCompileTimeConstant(c->label);
                 continue;
