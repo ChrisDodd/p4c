@@ -340,8 +340,8 @@ const IR::Node *DoConstantFolding::postorder(IR::UPlus *e) {
 }
 
 const IR::Constant *DoConstantFolding::cast(const IR::Constant *node, unsigned base,
-                                            const IR::Type_Bits *type) const {
-    return new IR::Constant(node->srcInfo, type, node->value, base);
+                                            const IR::Type_Bits *type, bool noWarn) const {
+    return new IR::Constant(node->srcInfo, type, node->value, base, noWarn);
 }
 
 const IR::Node *DoConstantFolding::postorder(IR::Add *e) {
@@ -554,10 +554,10 @@ const IR::Node *DoConstantFolding::binary(const IR::Operation_Binary *e,
         // must cast one to the type of the other
         if (lunk) {
             resultType = rtb;
-            left = cast(left, left->base, rtb);
+            left = cast(left, left->base, rtb, false);
         } else {
             resultType = ltb;
-            right = cast(right, left->base, ltb);
+            right = cast(right, left->base, ltb, false);
         }
     }
     big_int value = func(left->value, right->value);
@@ -910,7 +910,7 @@ const IR::Node *DoConstantFolding::postorder(IR::Cast *e) {
     if (etype->is<IR::Type_Bits>()) {
         auto type = etype->to<IR::Type_Bits>();
         if (auto arg = expr->to<IR::Constant>()) {
-            return cast(arg, arg->base, type);
+            return cast(arg, arg->base, type, true);
         } else if (auto arg = expr->to<IR::BoolLiteral>()) {
             if (type->isSigned || type->size != 1)
                 error(ErrorType::ERR_INVALID, "%1%: Cannot cast %1% directly to %2% (use bit<1>)",
