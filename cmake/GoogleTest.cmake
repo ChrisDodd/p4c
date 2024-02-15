@@ -10,7 +10,7 @@ macro(p4c_obtain_googletest)
   # Fetch and build the GTest dependency.
   FetchContent_Declare(
     gtest
-    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_REPOSITORY https://gitlab-master.nvidia.com/nbu-sws/p4/3rdparty/googletest.git/
     # https://github.com/google/googletest/releases/tag/v1.14.0
     GIT_TAG        f8d7d77c06936315286eb55f8de22cd23c188571
     GIT_PROGRESS TRUE
