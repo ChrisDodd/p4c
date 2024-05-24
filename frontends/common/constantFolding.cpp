@@ -341,7 +341,7 @@ const IR::Node *DoConstantFolding::postorder(IR::UPlus *e) {
 
 const IR::Constant *DoConstantFolding::cast(const IR::Constant *node, unsigned base,
                                             const IR::Type_Bits *type) const {
-    return new IR::Constant(node->srcInfo, type, node->value, base);
+    return new IR::Constant(node->srcInfo, type, node->value, base, true);
 }
 
 const IR::Node *DoConstantFolding::postorder(IR::Add *e) {
@@ -840,10 +840,10 @@ const IR::Node *DoConstantFolding::shift(const IR::Operation_Binary *e) {
         shift_amt = right->to<IR::Constant>();
     } else if (typesKnown) {
         auto ei = EnumInstance::resolve(right, typeMap);
-        if (ei == nullptr) return e;
-        if (auto se = ei->to<SerEnumInstance>()) {
+        if (auto se = ei ? ei->to<SerEnumInstance>() : nullptr) {
             shift_amt = se->value->checkedTo<IR::Constant>();
         } else {
+            error(ErrorType::ERR_EXPECTED, "%1%: expected an integer value", right);
             return e;
         }
     } else {

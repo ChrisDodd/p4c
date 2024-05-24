@@ -66,8 +66,8 @@ macro(p4tools_obtain_z3)
     set(FETCHCONTENT_QUIET OFF)
     fetchcontent_declare(
       z3
-      URL https://github.com/Z3Prover/z3/releases/download/z3-${P4TOOLS_Z3_VERSION}/z3-${P4TOOLS_Z3_VERSION}-${Z3_ARCH}-${Z3_PLATFORM_SUFFIX}.zip
-      URL_HASH SHA256=${Z3_ZIP_HASH}
+      URL https://github.com.disabled.nvidia.com/Z3Prover/z3/releases/download/z3-${P4TOOLS_Z3_VERSION}/z3-${P4TOOLS_Z3_VERSION}.31.zip
+      URL_HASH SHA256=9d0f70e61e82b321f35e6cad1343615d2dead6f2c54337a24293725de2900fb6
       USES_TERMINAL_DOWNLOAD TRUE
       GIT_PROGRESS TRUE
     )

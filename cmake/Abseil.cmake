@@ -39,7 +39,7 @@ macro(p4c_obtain_abseil)
     
     FetchContent_Declare(
       abseil
-      URL https://github.com/abseil/abseil-cpp/releases/download/${P4C_ABSEIL_VERSION}/abseil-cpp-${P4C_ABSEIL_VERSION}.tar.gz
+      URL https://urm.nvidia.com/artifactory/sw-nbu-sws-p4-generic/abseil/abseil-cpp-${P4C_ABSEIL_VERSION}.tar.gz
       URL_HASH SHA256=3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a
       USES_TERMINAL_DOWNLOAD TRUE
       GIT_PROGRESS TRUE
