@@ -319,7 +319,6 @@ class Type_InfInt : Type, ITypeVar {
         return true; /* ignore declid */
     }
     const Type* getP4Type() const override { return this; }
-    int width_bits() const override { return 0; }
     int min_width_bits() const override { BUG("min_width_bits() on unsized type: %1%", this); }
     int max_width_bits() const override { BUG("max_width_bits() on unsized type: %1%", this); }
 }
