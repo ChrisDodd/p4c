@@ -147,7 +147,7 @@ Util::IJson *ExternConverter_clone::convertExternFunction(ConversionContext *ctx
     parameters->append(session);
 
     if (id >= 0) {
-        auto cst = new IR::Constant(id);
+        auto cst = IR::Constant::get(IR::Type_Bits::get(32), id);
         ctxt->typeMap->setType(cst, IR::Type_Bits::get(32));
         auto jcst = ctxt->conv->convert(cst);
         parameters->append(jcst);
@@ -224,7 +224,7 @@ Util::IJson *ExternConverter_clone_preserving_field_list::convertExternFunction(
     }
 
     id = getFieldListById(ctxt, cst->asUnsigned());
-    cst = new IR::Constant(id);
+    cst = IR::Constant::get(IR::Type_Bits::get(32), id);
     ctxt->typeMap->setType(cst, IR::Type_Bits::get(32));
     auto jcst = ctxt->conv->convert(cst);
     parameters->append(jcst);
@@ -301,7 +301,7 @@ Util::IJson *ExternConverter_digest::convertExternFunction(ConversionContext *ct
         }
     }
     int id = ctxt->createFieldList(mc->arguments->at(1)->expression, listName, true);
-    auto cst = new IR::Constant(id);
+    auto cst = IR::Constant::get(IR::Type_Bits::get(32), id);
     ctxt->typeMap->setType(cst, IR::Type_Bits::get(32));
     auto jcst = ctxt->conv->convert(cst);
     parameters->append(jcst);
@@ -329,7 +329,7 @@ Util::IJson *ExternConverter_resubmit_preserving_field_list::convertExternFuncti
         }
         unsigned index = cst->asUnsigned();
         int id = getFieldListById(ctxt, index);
-        cst = new IR::Constant(id);
+        cst = IR::Constant::get(IR::Type_Bits::get(32), id);
         ctxt->typeMap->setType(cst, IR::Type_Bits::get(32));
         auto jcst = ctxt->conv->convert(cst);
         parameters->append(jcst);
@@ -360,7 +360,7 @@ Util::IJson *ExternConverter_recirculate_preserving_field_list::convertExternFun
         }
         unsigned index = cst->asUnsigned();
         int id = getFieldListById(ctxt, index);
-        cst = new IR::Constant(id);
+        cst = IR::Constant::get(IR::Type_Bits::get(32), id);
         ctxt->typeMap->setType(cst, IR::Type_Bits::get(32));
         auto jcst = ctxt->conv->convert(cst);
         parameters->append(jcst);
