@@ -177,7 +177,7 @@ void ExpressionConverter::postorder(const IR::Cast *expression) {
 void ExpressionConverter::postorder(const IR::Constant *expression) {
     auto result = new Util::JsonObject();
     result->emplace("type", "hexstr");
-    auto bitwidth = expression->type->width_bits();
+    auto bitwidth = expression->type->is<IR::Type_InfInt>() ? 0 : expression->type->width_bits();
     cstring repr = stringRepr(expression->value, ROUNDUP(bitwidth, 8));
     result->emplace("value", repr);
     if (withConstantWidths) result->emplace("bitwidth", bitwidth);

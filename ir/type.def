@@ -305,7 +305,6 @@ class Type_InfInt : Type, ITypeVar {
         return true; /* ignore declid */
     }
     const Type* getP4Type() const override { return this; }
-    int width_bits() const override { return 0; }
 }
 
 class Type_Dontcare : Type_Base {

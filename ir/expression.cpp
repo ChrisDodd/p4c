@@ -151,7 +151,7 @@ const IR::Constant *IR::Constant::get(const IR::Type *t, big_int v, Util::Source
     // Only cache bits with width lower than 16 bit to restrict the size of the cache.
     // Do not cache values with a non-empty source info (yet).
     const auto *tb = t->to<Type_Bits>();
-    if (t->width_bits() > 16 || tb == nullptr || si.isValid()) {
+    if (!tb || t->width_bits() > 16 || si.isValid()) {
         return new IR::Constant(si, t, v);
     }
     // Constants are interned. Keys in the intern map are pairs of types and values.
