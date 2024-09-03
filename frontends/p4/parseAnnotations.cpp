@@ -12,6 +12,7 @@ ParseAnnotations::HandlerMap ParseAnnotations::standardHandlers() {
         // These annotations have empty bodies.
         PARSE_EMPTY(IR::Annotation::atomicAnnotation),
         PARSE_EMPTY(IR::Annotation::defaultOnlyAnnotation),
+        PARSE_EMPTY(IR::Annotation::exitAnnotation),
         PARSE_EMPTY(IR::Annotation::hiddenAnnotation),
         PARSE_EMPTY(IR::Annotation::likelyAnnotation),
         PARSE_EMPTY(IR::Annotation::noSideEffectsAnnotation),

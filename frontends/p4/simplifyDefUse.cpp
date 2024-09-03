@@ -1318,6 +1318,10 @@ class FindUninitialized : public Inspector {
         }
 
         reads(expression, LocationSet::empty);
+
+        if (auto ec = mi->to<ExternCall>()) {
+            if (ec->willExit()) unreachable = true;
+        }
         return false;
     }
 
