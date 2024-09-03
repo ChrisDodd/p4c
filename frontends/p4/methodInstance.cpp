@@ -195,6 +195,18 @@ Instantiation *Instantiation::resolve(const IR::Declaration_Instance *instance, 
     return nullptr;  // unreachable
 }
 
+bool ExternCall::isPure() const {
+    return method->getAnnotation(IR::Annotation::pureAnnotation) != nullptr;
+}
+
+bool ExternCall::sideEffectFree() const {
+    return method->getAnnotation(IR::Annotation::noSideEffectsAnnotation) != nullptr;
+}
+
+bool ExternCall::willExit() const {
+    return method->getAnnotation(IR::Annotation::exitAnnotation) != nullptr;
+}
+
 std::vector<const IR::IDeclaration *> ExternMethod::mayCall() const {
     std::vector<const IR::IDeclaration *> rv;
     auto *di = object->to<IR::Declaration_Instance>();

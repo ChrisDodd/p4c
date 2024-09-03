@@ -745,6 +745,11 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         }
     }
     expressionWrites(expression, result);
+    if (auto ec = mi->to<ExternCall>()) {
+        if (ec->willExit()) {
+            currentDefinitions->setUnreachable();
+        }
+    }
     return false;
 }
 

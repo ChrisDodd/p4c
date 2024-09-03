@@ -285,6 +285,7 @@ class Annotation {
     static const cstring synchronousAnnotation;  /// Synchronous annotation.
     static const cstring pureAnnotation;  /// extern function/method annotation.
     static const cstring noSideEffectsAnnotation;  /// extern function/method annotation.
+    static const cstring exitAnnotation;  /// extern function/method annotation.
     static const cstring noWarnAnnotation;  /// noWarn annotation.
     static const cstring matchAnnotation;  /// Match annotation (for value sets).
     static const cstring fieldListAnnotation;  /// Used for recirculate, etc.
