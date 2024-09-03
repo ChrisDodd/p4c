@@ -152,6 +152,10 @@ class ExternCall : public MethodInstance {
  public:
     const IR::Method *method;
 
+    bool isPure() const;
+    bool sideEffectFree() const;
+    bool willExit() const;
+
     DECLARE_TYPEINFO(ExternCall, MethodInstance);
 };
 

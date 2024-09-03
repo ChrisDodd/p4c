@@ -604,6 +604,9 @@ IR::MethodCallExpression *DoLocalCopyPropagation::postorder(IR::MethodCallExpres
             }
         }
     }
+    if (auto ec = mi->to<ExternCall>()) {
+        if (ec->willExit()) setUnreachable();
+    }
     return mc;
 }
 
