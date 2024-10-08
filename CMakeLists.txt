@@ -419,7 +419,7 @@ set(FETCHCONTENT_QUIET OFF)
 # Fetch and declare the P4Runtime library.
 FetchContent_Declare(
   p4runtime
-  GIT_REPOSITORY https://github.com/p4lang/p4runtime.git
+  GIT_REPOSITORY https://gitlab-master.nvidia.com/nbu-sws/p4/3rdparty/p4runtime.git/
   GIT_TAG        ec4eb5ef70dbcbcbf2f8357a4b2b8c2f218845a5
   GIT_PROGRESS TRUE
 )

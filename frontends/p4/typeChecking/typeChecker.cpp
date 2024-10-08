@@ -1,5 +1,6 @@
 /*
 Copyright 2013-present Barefoot Networks, Inc.
+Copyright (c) 2024 NVIDIA CORPORATION.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -88,6 +89,18 @@ const IR::Type *TypeInferenceBase::cloneWithFreshTypeVariables(const IR::IMayBeG
     learn(cl, this, getChildContext());
     LOG3("Cloned for type variables " << type << " into " << cl);
     return cl->to<IR::Type>();
+}
+
+// Make an implicit cast explicit.  If we're casting a constant value to an
+// explicit bit size, we instead create a new constant with the desired type, so
+// as to generate the correct warning or error for an out-of-range constant literal
+const IR::Expression *TypeInferenceBase::implicitCast(const IR::Type *toType,
+                                                  const IR::Expression *exp) {
+    if (auto cst = exp->to<IR::Constant>()) {
+        if (toType->is<IR::Type_Bits>())
+            return new IR::Constant(cst->srcInfo, toType, cst->value, cst->base);
+    }
+    return new IR::Cast(exp->srcInfo, toType, exp);
 }
 
 TypeInferenceBase::TypeInferenceBase(TypeMap *typeMap, bool readOnly, bool checkArrays,
@@ -567,7 +580,7 @@ const IR::Expression *TypeInferenceBase::assignment(const IR::Node *errorPositio
 
     if (initType->is<IR::Type_InfInt>() && !destType->is<IR::Type_InfInt>()) {
         auto toType = destType->getP4Type();
-        sourceExpression = new IR::Cast(toType, sourceExpression);
+        sourceExpression = implicitCast(toType, sourceExpression);
         setType(toType, new IR::Type_Type(destType));
         setType(sourceExpression, destType);
         setCompileTimeConstant(sourceExpression);

@@ -36,7 +36,7 @@ macro(p4c_obtain_bdwgc)
 
     fetchcontent_declare(
       bdwgc
-      GIT_REPOSITORY https://github.com/ivmai/bdwgc.git
+      GIT_REPOSITORY https://gitlab-master.nvidia.com/nbu-sws/p4/3rdparty/bdwgc.git/
       GIT_TAG 7f1503dbfe254e77678666a0e09b735add064b57 # 8.2.6, 2024-08-03
       GIT_PROGRESS TRUE
     )
