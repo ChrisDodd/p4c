@@ -405,10 +405,13 @@ std::vector<const char *> *ParserOptions::process(int argc, char *const argv[]) 
 
 #ifdef SUPPORT_P4_14
     searchForIncludePath(p4_14includePath,
-                         {"p4_14include"_cs, "../p4_14include"_cs, "../../p4_14include"_cs},
+                         {"p4_14include"_cs, "../p4_14include"_cs, "../../p4_14include"_cs,
+                          "../share/p4c/p4include"_cs},
                          executablePath);
 #endif
-    searchForIncludePath(p4includePath, {"p4include"_cs, "../p4include"_cs, "../../p4include"_cs},
+    searchForIncludePath(p4includePath,
+                         {"p4include"_cs, "../p4include"_cs, "../../p4include"_cs,
+                          "../share/p4c/p4_14include"_cs},
                          executablePath);
 
     auto *remainingOptions = Util::Options::process(argc, argv);
