@@ -225,6 +225,8 @@ inline bool equiv(const INode *a, const INode *b) {
         return tmp;                                                                          \
     }
 
+const Annotations *annotationsFor(const INode *n);
+
 }  // namespace P4::IR
 
 #endif /* IR_NODE_H_ */

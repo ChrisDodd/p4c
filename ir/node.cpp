@@ -160,4 +160,10 @@ void IR::Node::sourceInfoToJSON(JSONGenerator &json) const {
 
 IRNODE_DEFINE_APPLY_OVERLOAD(Node, , )
 
+const IR::Annotations *IR::annotationsFor(const IR::INode *n) {
+    if (!n) return IR::Annotations::empty;
+    if (auto ia = n->to<IR::IAnnotated>()) return ia->getAnnotations();
+    return IR::Annotations::empty;
+}
+
 }  // namespace P4
