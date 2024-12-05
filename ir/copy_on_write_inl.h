@@ -233,6 +233,15 @@ struct COWfieldref<T, NameMap<U, MAP>, field> {
 
 // FIXME -- need NodeMap specializations if any backend ever uses that template
 
+/* specialization for std::variant */
+template <class T, class... TYPES, std::variant<TYPES...> T::*field>
+struct COWfieldref<T, std::variant<TYPES...>, field> {
+    COWinfo<T>        *info;
+
+    size_t index() const { return info->get()->*field.index(); }
+    // FIXME -- what do we need here?  Do we need a specialization of std::visit?
+};
+
 }  // namespace P4::IR
 
 #endif /* IR_COPY_ON_WRITE_INL_H_ */
