@@ -361,6 +361,7 @@ void IrMethod::generate_hdr(std::ostream &out) const {
     if (isFriend) out << "friend ";
     generate_proto(out, false, isUser);
     if (isOverride) out << " override";
+    if (isFinal) out << " final";
     if (inImpl || !body)
         out << ';';
     else
@@ -371,6 +372,7 @@ void IrMethod::generate_hdr(std::ostream &out) const {
         generate_proto(out, false, isUser);
         out << " const";
         if (isOverride) out << " override";
+        // can't be final -- error check?
         out << ";" << std::endl;
     } else if (name == "node_type_name") {
         out << LineDirective(srcInfo) << IrClass::indent << "static " << rtype->toString()
