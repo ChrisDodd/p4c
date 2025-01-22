@@ -26,6 +26,7 @@ void DoExpandLookahead::expand(
     const IR::Type *type,                         // type that is being extracted from source
     unsigned *offset,                             // current bit offset in source
     const IR::Expression *destination,            // result is assigned to this expression
+    IR::AssignmentStatement *assignment,          // reuse this assignment where possible
     IR::IndexedVector<IR::StatOrDecl> *output) {  // add here new assignments
     if (type->is<IR::Type_Struct>() || type->is<IR::Type_Header>()) {
         if (type->is<IR::Type_Header>() && !expandHeader) return;
@@ -39,7 +40,7 @@ void DoExpandLookahead::expand(
             auto t = typeMap->getTypeType(f->type, true);
             if (t == nullptr) continue;
             auto member = new IR::Member(destination, f->name);
-            expand(bitvector, t, offset, member, output);
+            expand(bitvector, t, offset, member, nullptr, output);
         }
     } else if (type->is<IR::Type_Bits>() || type->is<IR::Type_Boolean>()) {
         unsigned size = type->width_bits();
@@ -49,14 +50,20 @@ void DoExpandLookahead::expand(
         auto tb = type->to<IR::Type_Bits>();
         if (!tb || tb->isSigned) expression = new IR::Cast(type, expression);
         *offset -= size;
-        auto assignment = new IR::AssignmentStatement(bitvector->srcInfo, destination, expression);
+        if (assignment) {
+            // FIXME: should be BUG_CHECK(assignment->left == destination ?
+            assignment->left = destination;
+            assignment->right = expression;
+        } else {
+            assignment = new IR::AssignmentStatement(bitvector->srcInfo, destination, expression);
+        }
         output->push_back(assignment);
     } else if (auto ts = type->to<IR::Type_Stack>()) {
         unsigned elements = ts->getSize();
         auto etype = ts->elementType;
         for (unsigned i = 0; i < elements; i++) {
             auto member = new IR::ArrayIndex(destination, new IR::Constant(i));
-            expand(bitvector, etype, offset, member, output);
+            expand(bitvector, etype, offset, member, nullptr, output);
         }
     } else {
         ::P4::error(ErrorType::ERR_UNEXPECTED, "%1%: unexpected type in lookahead argument", type);
@@ -118,7 +125,8 @@ const IR::Node *DoExpandLookahead::postorder(IR::AssignmentStatement *statement)
     auto result = new IR::BlockStatement;
     result->push_back(ei->statement);
 
-    expand(ei->tmp->clone(), ei->origType, &ei->width, statement->left->clone(),
+    // FIXME -- the clone() on statment->left here is unnecessary and wasteful
+    expand(ei->tmp->clone(), ei->origType, &ei->width, statement->left->clone(), statement,
            &result->components);
     return result;
 }

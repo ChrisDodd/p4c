@@ -56,7 +56,8 @@ class DoExpandLookahead : public Transform, public ResolutionContext {
     };
 
     void expand(const IR::PathExpression *bitvector, const IR::Type *type, unsigned *offset,
-                const IR::Expression *destination, IR::IndexedVector<IR::StatOrDecl> *output);
+                const IR::Expression *destination, IR::AssignmentStatement *assignment,
+                IR::IndexedVector<IR::StatOrDecl> *output);
     ExpansionInfo *convertLookahead(const IR::MethodCallExpression *expression);
 
  public:
