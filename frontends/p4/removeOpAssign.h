@@ -18,17 +18,21 @@ limitations under the License.
 #define FRONTENDS_P4_REMOVEOPASSIGN_H_
 
 #include "ir/ir.h"
+#include "cloner.h"
 
 namespace P4 {
 
 class RemoveOpAssign : public Transform {
     const IR::Node *finish(IR::AssignmentStatement *as, const IR::Expression *e);
 
-#define PREORDER(OP)                                        \
-    const IR::Node *preorder(IR::OP##Assign *as) override { \
-        prune();                                            \
-        return finish(as, new IR::OP(as->left, as->right)); \
+    template<class T>
+    const IR::Node *doit(T *as) {
+        prune();
+        return new IR::AssignmentStatement(as->srcInfo, as->left->apply(CloneExpressions()),
+                                           new typename T::binop_t(as->left, as->right));
     }
+
+#define PREORDER(OP) const IR::Node *preorder(IR::OP##Assign *as) override { return doit(as); }
     PREORDER(Mul)
     PREORDER(Div)
     PREORDER(Mod)
