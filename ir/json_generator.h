@@ -30,6 +30,7 @@ limitations under the License.
 #include "lib/ordered_map.h"
 #include "lib/ordered_set.h"
 #include "lib/safe_vector.h"
+#include "lib/string_map.h"
 
 namespace P4 {
 
@@ -181,6 +182,19 @@ class JSONGenerator {
             out << std::endl << --indent;
         }
         out << "]";
+    }
+
+    template <typename V>
+    void generate(const string_map<V> &v) {
+        out << "{" << std::endl;
+        if (v.size() > 0) {
+            auto it = v.begin();
+            out << ++indent << it->first << ": " << it->second;
+            for (it++; it != v.end(); ++it)
+                out << "," << std::endl << indent << it->first << ": " << it->second;
+            out << std::endl << --indent;
+        }
+        out << "}";
     }
 
     void generate(bool v) { out << (v ? "true" : "false"); }
