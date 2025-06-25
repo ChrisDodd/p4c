@@ -35,6 +35,7 @@ set (MIDEND_SRCS
   noMatch.cpp
   orderArguments.cpp
   parserUnroll.cpp
+  persistToReg.cpp
   predication.cpp
   removeAssertAssume.cpp
   removeComplexExpressions.cpp
@@ -92,6 +93,7 @@ set (MIDEND_HDRS
   noMatch.h
   orderArguments.h
   parserUnroll.h
+  persistToReg.h
   predication.h
   removeAssertAssume.h
   removeComplexExpressions.h
