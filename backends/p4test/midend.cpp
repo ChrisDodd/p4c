@@ -39,6 +39,7 @@
 #include "midend/flattenUnions.h"
 #include "midend/global_copyprop.h"
 #include "midend/hsIndexSimplify.h"
+#include "midend/implicitReadWrite.h"
 #include "midend/local_copyprop.h"
 #include "midend/midEndLast.h"
 #include "midend/nestedStructs.h"
@@ -82,6 +83,7 @@ MidEnd::MidEnd(P4TestOptions &options, std::ostream *outStream) {
 
     addPasses(
         {new P4::DumpPipe("MidEnd start"),
+         new P4::ImplicitReadWrite(&typeMap),
          options.ndebug ? new P4::RemoveAssertAssume(&typeMap) : nullptr,
          new P4::RemoveMiss(&typeMap),
          new P4::EliminateNewtype(&typeMap),
