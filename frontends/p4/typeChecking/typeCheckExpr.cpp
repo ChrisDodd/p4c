@@ -36,8 +36,9 @@ const IR::Node *TypeInferenceBase::postorder(const IR::Parameter *param) {
     if (!readOnly && paramType->is<IR::Type_InfInt>()) {
         // We only give these errors if we are no in 'readOnly' mode:
         // this prevents giving a confusing error message to the user.
-        if (param->direction != IR::Direction::None) {
-            typeError("%1%: parameters with type %2% must be directionless", param, paramType);
+        if (param->direction != IR::Direction::None && param->direction != IR::Direction::In) {
+            typeError("%1%: parameters with type %2% must be 'in' or directionless", param,
+                      paramType);
             return param;
         }
         if (isInContext<IR::P4Action>()) {
