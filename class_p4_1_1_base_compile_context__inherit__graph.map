@@ -1,37 +1,39 @@
 <map id="P4::BaseCompileContext" name="P4::BaseCompileContext">
-<area shape="rect" id="Node000001" title=" " alt="" coords="208,454,391,479"/>
-<area shape="rect" id="Node000003" href="$class_p4_1_1_p4_c_context.html" title=" " alt="" coords="445,429,567,454"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="404,451,444,446,445,451,404,456"/>
-<area shape="rect" id="Node000018" href="$class_ref_check_context.html" title=" " alt="" coords="439,478,573,503"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="405,476,439,480,438,486,404,482"/>
-<area shape="rect" id="Node000002" href="$class_p4_1_1_i_compile_context.html" title=" " alt="" coords="5,454,160,479"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,464,208,464,208,469,174,469"/>
-<area shape="rect" id="Node000004" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,5,827,45"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="504,415,509,344,524,248,539,197,559,146,585,98,619,55,635,43,638,48,623,59,590,101,564,148,544,198,529,249,514,345,510,415"/>
-<area shape="rect" id="Node000005" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,69,827,109"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="506,414,514,354,533,275,547,233,566,192,590,153,620,119,636,107,639,112,623,123,594,157,571,195,552,235,538,277,519,355,512,415"/>
-<area shape="rect" id="Node000006" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,133,827,173"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="509,415,520,366,541,304,573,239,595,209,620,183,637,171,640,176,623,187,599,213,578,242,546,306,526,367,514,416"/>
-<area shape="rect" id="Node000007" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,197,827,237"/>
-<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="513,415,528,377,551,332,581,287,620,247,639,235,642,240,623,251,585,290,555,335,533,380,518,417"/>
-<area shape="rect" id="Node000008" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,261,827,301"/>
-<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="521,415,562,363,589,335,620,311,643,299,645,304,623,316,593,339,566,366,525,419"/>
-<area shape="rect" id="Node000009" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,325,827,365"/>
-<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="537,419,620,375,652,363,654,368,622,380,540,424"/>
-<area shape="rect" id="Node000010" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,389,827,429"/>
-<area shape="poly" id="edge9_Node000003_Node000010" title=" " alt="" coords="581,428,623,422,624,427,581,433"/>
-<area shape="rect" id="Node000011" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,453,827,493"/>
-<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="581,450,624,456,623,461,581,455"/>
-<area shape="rect" id="Node000012" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,517,827,557"/>
-<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="563,457,575,463,599,483,623,503,649,515,646,520,620,508,596,488,572,468,560,462"/>
-<area shape="rect" id="Node000013" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,581,827,621"/>
-<area shape="poly" id="edge12_Node000003_Node000013" title=" " alt="" coords="570,459,575,463,587,477,594,490,600,517,605,543,612,555,623,567,640,579,637,583,620,571,608,558,600,545,594,518,589,492,582,480,571,467,566,463"/>
-<area shape="rect" id="Node000014" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title=" " alt="" coords="621,645,829,685"/>
-<area shape="poly" id="edge13_Node000003_Node000014" title=" " alt="" coords="572,460,575,464,591,485,598,507,600,550,601,591,608,611,623,631,638,643,635,647,619,635,604,614,596,592,594,550,593,508,586,488,571,467,568,464"/>
-<area shape="rect" id="Node000015" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title=" " alt="" coords="621,709,829,749"/>
-<area shape="poly" id="edge14_Node000003_Node000015" title=" " alt="" coords="573,461,575,464,595,494,603,524,603,553,599,582,596,611,596,639,604,667,623,696,637,707,634,711,619,699,599,669,591,640,591,611,594,582,597,553,597,525,590,496,571,467,569,464"/>
-<area shape="rect" id="Node000016" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="624,773,827,813"/>
-<area shape="poly" id="edge15_Node000003_Node000016" title=" " alt="" coords="573,461,575,464,599,502,607,541,605,578,599,615,593,651,592,687,600,723,623,760,636,771,633,775,619,763,595,725,586,687,588,650,594,614,600,577,602,541,594,504,571,467,569,464"/>
-<area shape="rect" id="Node000017" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title="A compilation context for P4Tools that provides a custom compiler configuration." alt="" coords="621,837,829,877"/>
-<area shape="poly" id="edge16_Node000003_Node000017" title=" " alt="" coords="573,461,575,464,592,487,603,511,612,557,608,602,599,647,590,691,587,735,596,779,607,801,623,824,636,835,633,839,619,827,602,804,591,780,581,735,584,690,594,646,603,602,606,557,598,513,587,490,571,467,569,464"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="208,373,391,398"/>
+<area shape="rect" id="Node000003" href="$class_compile_context.html" title=" " alt="" coords="439,298,681,323"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="343,365,438,332,485,321,487,326,439,337,345,370"/>
+<area shape="rect" id="Node000004" href="$class_compile_context.html" title=" " alt="" coords="441,347,679,373"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="404,372,441,369,442,374,405,378"/>
+<area shape="rect" id="Node000005" href="$class_p4_1_1_p4_c_context.html" title=" " alt="" coords="499,397,621,422"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="405,392,499,401,498,406,404,398"/>
+<area shape="rect" id="Node000019" href="$class_ref_check_context.html" title=" " alt="" coords="493,446,627,471"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="345,400,439,432,493,445,492,450,438,437,344,405"/>
+<area shape="rect" id="Node000002" href="$class_p4_1_1_i_compile_context.html" title=" " alt="" coords="5,373,160,398"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,383,208,383,208,388,174,388"/>
+<area shape="rect" id="Node000006" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,5,935,45"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="634,405,659,397,679,382,695,362,706,343,715,303,713,263,705,223,696,182,693,140,701,98,712,77,727,56,741,44,744,48,731,59,716,80,707,100,698,141,701,181,710,222,718,263,720,304,711,345,700,365,683,386,661,402,636,411"/>
+<area shape="rect" id="Node000007" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,69,935,109"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="634,405,659,397,679,382,702,351,710,319,709,287,704,255,699,221,698,188,706,154,727,120,742,107,745,111,731,123,711,156,703,188,704,221,709,254,715,287,715,320,706,353,683,386,661,401,636,410"/>
+<area shape="rect" id="Node000008" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,133,935,173"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="635,404,659,396,679,382,697,359,705,335,706,311,704,286,701,261,702,235,710,209,727,184,742,171,746,175,731,187,715,211,707,236,707,261,709,286,711,311,710,336,702,361,683,386,661,401,636,409"/>
+<area shape="rect" id="Node000009" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,197,935,237"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="634,403,658,395,680,382,693,367,700,351,703,317,707,282,714,265,727,247,744,235,747,240,731,251,718,267,712,284,709,318,705,352,698,369,683,386,661,400,636,408"/>
+<area shape="rect" id="Node000010" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,261,935,301"/>
+<area shape="poly" id="edge9_Node000005_Node000010" title=" " alt="" coords="634,400,658,393,680,382,696,366,703,348,711,330,728,311,748,299,751,304,731,315,716,332,708,350,700,369,683,386,660,398,636,405"/>
+<area shape="rect" id="Node000011" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,325,935,365"/>
+<area shape="poly" id="edge10_Node000005_Node000011" title=" " alt="" coords="635,392,681,381,756,363,757,368,682,387,636,397"/>
+<area shape="rect" id="Node000012" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,389,935,429"/>
+<area shape="poly" id="edge11_Node000005_Node000012" title=" " alt="" coords="635,407,732,407,732,412,635,412"/>
+<area shape="rect" id="Node000013" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,453,935,493"/>
+<area shape="poly" id="edge12_Node000005_Node000013" title=" " alt="" coords="636,422,682,432,757,451,756,456,681,437,635,427"/>
+<area shape="rect" id="Node000014" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,517,935,557"/>
+<area shape="poly" id="edge13_Node000005_Node000014" title=" " alt="" coords="636,413,660,421,683,433,700,450,708,468,716,486,731,503,751,515,748,519,728,507,711,489,703,471,696,453,680,437,658,426,634,418"/>
+<area shape="rect" id="Node000015" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title=" " alt="" coords="729,581,937,621"/>
+<area shape="poly" id="edge14_Node000005_Node000015" title=" " alt="" coords="636,410,661,419,683,433,698,449,705,466,709,501,712,535,718,551,731,567,747,579,744,583,727,571,714,554,707,536,703,501,700,468,693,452,680,437,658,423,634,415"/>
+<area shape="rect" id="Node000016" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title=" " alt="" coords="729,645,937,685"/>
+<area shape="poly" id="edge15_Node000005_Node000016" title=" " alt="" coords="636,409,661,418,683,433,702,457,710,483,711,508,709,533,707,558,707,583,715,607,731,632,746,643,742,647,727,635,710,610,702,584,701,558,704,533,706,508,705,484,697,460,679,437,659,423,635,414"/>
+<area shape="rect" id="Node000017" href="$class_p4_1_1_p4_c_context_with_options.html" title=" " alt="" coords="732,709,935,749"/>
+<area shape="poly" id="edge16_Node000005_Node000017" title=" " alt="" coords="636,409,661,417,683,433,706,466,715,499,715,532,709,565,704,598,703,631,711,663,731,696,745,707,742,711,727,699,706,665,698,631,699,597,704,564,709,531,710,499,702,468,679,437,659,422,634,414"/>
+<area shape="rect" id="Node000018" href="$class_p4_1_1_p4_tools_1_1_compile_context.html" title="A compilation context for P4Tools that provides a custom compiler configuration." alt="" coords="729,773,937,813"/>
+<area shape="poly" id="edge17_Node000005_Node000018" title=" " alt="" coords="636,408,661,417,683,433,700,453,711,474,720,515,718,556,710,597,701,638,698,678,707,719,716,739,731,760,744,771,741,775,727,763,712,742,701,721,693,678,696,637,705,596,713,555,715,515,706,476,695,456,679,437,659,422,634,413"/>
 </map>

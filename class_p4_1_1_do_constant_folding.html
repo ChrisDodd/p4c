@@ -265,9 +265,9 @@ const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</
 <tr class="memitem:a0db0df9dd3fc11a0dcf4b21a574120d8" id="r_a0db0df9dd3fc11a0dcf4b21a574120d8"><td class="memItemLeft" align="right" valign="top"><a id="a0db0df9dd3fc11a0dcf4b21a574120d8" name="a0db0df9dd3fc11a0dcf4b21a574120d8"></a>
 const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>preorder</b> (IR::ArrayIndex *e) override</td></tr>
 <tr class="separator:a0db0df9dd3fc11a0dcf4b21a574120d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61822f3153c1a0be5174fd6bd0333e6e" id="r_a61822f3153c1a0be5174fd6bd0333e6e"><td class="memItemLeft" align="right" valign="top"><a id="a61822f3153c1a0be5174fd6bd0333e6e" name="a61822f3153c1a0be5174fd6bd0333e6e"></a>
-const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>preorder</b> (IR::AssignmentStatement *statement) override</td></tr>
-<tr class="separator:a61822f3153c1a0be5174fd6bd0333e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9befd0cf2203708b90fa024949522269" id="r_a9befd0cf2203708b90fa024949522269"><td class="memItemLeft" align="right" valign="top"><a id="a9befd0cf2203708b90fa024949522269" name="a9befd0cf2203708b90fa024949522269"></a>
+const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>preorder</b> (IR::BaseAssignmentStatement *statement) override</td></tr>
+<tr class="separator:a9befd0cf2203708b90fa024949522269"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abaf4d37204bdd06e7d5888e106090500" id="r_abaf4d37204bdd06e7d5888e106090500"><td class="memItemLeft" align="right" valign="top"><a id="abaf4d37204bdd06e7d5888e106090500" name="abaf4d37204bdd06e7d5888e106090500"></a>
 const IR::BlockStatement *&#160;</td><td class="memItemRight" valign="bottom"><b>preorder</b> (IR::BlockStatement *bs) override</td></tr>
 <tr class="separator:abaf4d37204bdd06e7d5888e106090500"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -507,10 +507,10 @@ Protected Member Functions</h2></td></tr>
 const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>binary</b> (const IR::Operation_Binary *op, std::function&lt; big_int(big_int, big_int)&gt; func, bool saturating=false)</td></tr>
 <tr class="memdesc:a5c8ac09d49d814a82da9ef7e1d706c91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Statically evaluate binary operation <code class="param">e</code> implemented by <code class="param">func</code>. <br /></td></tr>
 <tr class="separator:a5c8ac09d49d814a82da9ef7e1d706c91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0e867f5a180e573f4591ab391747efe" id="r_ab0e867f5a180e573f4591ab391747efe"><td class="memItemLeft" align="right" valign="top"><a id="ab0e867f5a180e573f4591ab391747efe" name="ab0e867f5a180e573f4591ab391747efe"></a>
-const IR::Constant *&#160;</td><td class="memItemRight" valign="bottom"><b>cast</b> (const IR::Constant *node, unsigned base, const IR::Type_Bits *type) const</td></tr>
-<tr class="memdesc:ab0e867f5a180e573f4591ab391747efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Statically cast constant <code class="param">node</code> to <code class="param">type</code> represented in the specified <code class="param">base</code>. <br /></td></tr>
-<tr class="separator:ab0e867f5a180e573f4591ab391747efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa71ba657327abc6049c8090dcd2c7d01" id="r_aa71ba657327abc6049c8090dcd2c7d01"><td class="memItemLeft" align="right" valign="top"><a id="aa71ba657327abc6049c8090dcd2c7d01" name="aa71ba657327abc6049c8090dcd2c7d01"></a>
+const IR::Constant *&#160;</td><td class="memItemRight" valign="bottom"><b>cast</b> (const IR::Constant *node, unsigned base, const IR::Type_Bits *type, bool noWarning=false) const</td></tr>
+<tr class="memdesc:aa71ba657327abc6049c8090dcd2c7d01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Statically cast constant <code class="param">node</code> to <code class="param">type</code> represented in the specified <code class="param">base</code>. <br /></td></tr>
+<tr class="separator:aa71ba657327abc6049c8090dcd2c7d01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af128dd44c8dc8177f7a16c5762fbaf56" id="r_af128dd44c8dc8177f7a16c5762fbaf56"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="class_p4_1_1_i_r_1_1_node.html">IR::Node</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af128dd44c8dc8177f7a16c5762fbaf56">compare</a> (const IR::Operation_Binary *op)</td></tr>
 <tr class="separator:af128dd44c8dc8177f7a16c5762fbaf56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca5b04b93f3560d362da4b1a62acdfa9" id="r_aca5b04b93f3560d362da4b1a62acdfa9"><td class="memItemLeft" align="right" valign="top">const IR::Expression *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aca5b04b93f3560d362da4b1a62acdfa9">getConstant</a> (const IR::Expression *expr) const</td></tr>
