@@ -256,7 +256,7 @@ const IR::Node *Specialize::postorder(IR::ConstructorCallExpression *expression)
     auto name = specMap->getName(getOriginal());
     if (name.isNullOrEmpty()) return expression;
     auto typeRef = new IR::Type_Name(IR::ID(name, nullptr));
-    auto result = new IR::ConstructorCallExpression(typeRef, new IR::Vector<IR::Argument>());
+    auto result = new IR::ConstructorCallExpression(typeRef);
     LOG2("Replaced " << expression << " with " << result);
     return result;
 }

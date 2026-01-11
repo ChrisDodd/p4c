@@ -586,8 +586,8 @@ class MethodCallExpression : Expression {
 }
 
 class ConstructorCallExpression : Expression {
-    Type               constructedType = type;  // Either a Type_Name or a Specialized_Type
-    Vector<Argument>   arguments;
+    Type                      constructedType = type;  // Either a Type_Name or a Type_Specialized
+    optional Vector<Argument> arguments = new Vector<Argument>;
     toString{ return constructedType->toString(); }
     validate{ BUG_CHECK(constructedType->is<Type_Name>() ||
                         constructedType->is<Type_Specialized>(),

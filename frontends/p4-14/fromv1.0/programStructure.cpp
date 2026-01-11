@@ -2368,36 +2368,35 @@ void ProgramStructure::createMain() {
     auto typepath = new IR::Path(v1model.sw.Id());
     auto type = new IR::Type_Name(typepath);
     auto args = new IR::Vector<IR::Argument>();
-    auto emptyArgs = new IR::Vector<IR::Argument>();
 
     auto parserPath = new IR::Path(v1model.parser.Id());
     auto parserType = new IR::Type_Name(parserPath);
-    auto parserConstruct = new IR::ConstructorCallExpression(parserType, emptyArgs);
+    auto parserConstruct = new IR::ConstructorCallExpression(parserType);
     args->push_back(new IR::Argument(parserConstruct));
 
     auto verifyPath = new IR::Path(verifyChecksums->name);
     auto verifyType = new IR::Type_Name(verifyPath);
-    auto verifyConstruct = new IR::ConstructorCallExpression(verifyType, emptyArgs);
+    auto verifyConstruct = new IR::ConstructorCallExpression(verifyType);
     args->push_back(new IR::Argument(verifyConstruct));
 
     auto ingressPath = new IR::Path(ingressReference);
     auto ingressType = new IR::Type_Name(ingressPath);
-    auto ingressConstruct = new IR::ConstructorCallExpression(ingressType, emptyArgs);
+    auto ingressConstruct = new IR::ConstructorCallExpression(ingressType);
     args->push_back(new IR::Argument(ingressConstruct));
 
     auto egressPath = new IR::Path(v1model.egress.Id());
     auto egressType = new IR::Type_Name(egressPath);
-    auto egressConstruct = new IR::ConstructorCallExpression(egressType, emptyArgs);
+    auto egressConstruct = new IR::ConstructorCallExpression(egressType);
     args->push_back(new IR::Argument(egressConstruct));
 
     auto updatePath = new IR::Path(updateChecksums->name);
     auto updateType = new IR::Type_Name(updatePath);
-    auto updateConstruct = new IR::ConstructorCallExpression(updateType, emptyArgs);
+    auto updateConstruct = new IR::ConstructorCallExpression(updateType);
     args->push_back(new IR::Argument(updateConstruct));
 
     auto deparserPath = new IR::Path(deparser->name);
     auto deparserType = new IR::Type_Name(deparserPath);
-    auto deparserConstruct = new IR::ConstructorCallExpression(deparserType, emptyArgs);
+    auto deparserConstruct = new IR::ConstructorCallExpression(deparserType);
     args->push_back(new IR::Argument(deparserConstruct));
 
     auto result = new IR::Declaration_Instance(name, type, args, nullptr);

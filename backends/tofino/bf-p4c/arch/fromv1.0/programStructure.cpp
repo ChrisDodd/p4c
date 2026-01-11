@@ -2291,36 +2291,35 @@ void TnaProgramStructure::createPipeline() {
     auto typepath = new IR::Path("Pipeline");
     auto type = new IR::Type_Name(typepath);
     auto args = new IR::Vector<IR::Argument>();
-    auto emptyArgs = new IR::Vector<IR::Argument>();
 
     auto ipp = new IR::Path("IngressParserImpl");
     auto ipt = new IR::Type_Name(ipp);
-    auto ipc = new IR::ConstructorCallExpression(ipt, emptyArgs);
+    auto ipc = new IR::ConstructorCallExpression(ipt);
     args->push_back(new IR::Argument(ipc));
 
     auto igp = new IR::Path("ingress");
     auto igt = new IR::Type_Name(igp);
-    auto igc = new IR::ConstructorCallExpression(igt, emptyArgs);
+    auto igc = new IR::ConstructorCallExpression(igt);
     args->push_back(new IR::Argument(igc));
 
     auto idp = new IR::Path("IngressDeparserImpl");
     auto idt = new IR::Type_Name(idp);
-    auto idc = new IR::ConstructorCallExpression(idt, emptyArgs);
+    auto idc = new IR::ConstructorCallExpression(idt);
     args->push_back(new IR::Argument(idc));
 
     auto epp = new IR::Path("EgressParserImpl");
     auto ept = new IR::Type_Name(epp);
-    auto epc = new IR::ConstructorCallExpression(ept, emptyArgs);
+    auto epc = new IR::ConstructorCallExpression(ept);
     args->push_back(new IR::Argument(epc));
 
     auto egp = new IR::Path("egress");
     auto egt = new IR::Type_Name(egp);
-    auto egc = new IR::ConstructorCallExpression(egt, emptyArgs);
+    auto egc = new IR::ConstructorCallExpression(egt);
     args->push_back(new IR::Argument(egc));
 
     auto edp = new IR::Path("EgressDeparserImpl");
     auto edt = new IR::Type_Name(edp);
-    auto edc = new IR::ConstructorCallExpression(edt, emptyArgs);
+    auto edc = new IR::ConstructorCallExpression(edt);
     args->push_back(new IR::Argument(edc));
 
     auto result = new IR::Declaration_Instance(name, type, args, nullptr);
