@@ -270,7 +270,7 @@ using namespace P4;
                             simpleKeysetExpression transitionStatement switchLabel
                             p4rtControllerType reducedSimpleKeysetExpression entryPriority
                             nonBraceExpression nonGrtExpression forCollectionExpr
-%type<ConstType*>           baseType typeOrVoid specializedType arrayType
+%type<ConstType*>           baseType voidOrTypeArg specializedType arrayType
                             typeRef tupleType typeArg realTypeArg namedType p4listType
                             derivedTypeDeclarationAsType
 %type<IR::Type_Name*>       typeName
@@ -1024,16 +1024,26 @@ methodPrototypes
     ;
 
 functionPrototype
-    : typeOrVoid
-        name optTypeParameters {
-            driver.structure->declareObject($2, $1->toString());
-            if (!$3->empty()) driver.structure->markAsTemplate($2);
-            driver.structure->pushNamespace(@2, false);
-            driver.structure->declareTypes($3->parameters); }
-        "(" parameterList ")" { driver.structure->declareParameters($6);
-                                auto params = new IR::ParameterList(@6, std::move($6));
-                                auto mt = new IR::Type_Method(@2, $3, $1, params, $2);
-                                $$ = new IR::Method(@2, $2, mt); }
+    : typeRef name optTypeParameters {
+                driver.structure->declareObject($2, $1->toString());
+                if (!$3->empty()) driver.structure->markAsTemplate($2);
+                driver.structure->pushNamespace(@2, false);
+                driver.structure->declareTypes($3->parameters); }
+      "(" parameterList ")" {
+                driver.structure->declareParameters($6);
+                auto params = new IR::ParameterList(@6, std::move($6));
+                auto mt = new IR::Type_Method(@2, $3, $1, params, $2);
+                $$ = new IR::Method(@2, $2, mt); }
+    | voidOrTypeArg name optTypeParameters {
+                driver.structure->declareObject($2, $1->toString());
+                if (!$3->empty()) driver.structure->markAsTemplate($2);
+                driver.structure->pushNamespace(@2, false);
+                driver.structure->declareTypes($3->parameters); }
+      "(" parameterList ")" {
+                driver.structure->declareParameters($6);
+                auto params = new IR::ParameterList(@6, std::move($6));
+                auto mt = new IR::Type_Method(@2, $3, $1, params, $2);
+                $$ = new IR::Method(@2, $2, mt); }
     ;
 
 methodPrototype
@@ -1105,9 +1115,8 @@ baseType
     | VARBIT l_angle nonGrtExpression r_angle { $$ = IR::Type_Varbits::get(@1+@4, $3); }
     ;
 
-typeOrVoid
-    : typeRef     { $$ = $1; }
-    | VOID        { $$ = IR::Type_Void::get(@1); }
+voidOrTypeArg
+    : VOID        { $$ = IR::Type_Void::get(@1); }
     | IDENTIFIER  { $$ = new IR::Type_Name(@1, new IR::Path(IR::ID(@1, $1))); }
         // This is necessary because template arguments may introduce the return type
     ;
