@@ -27,10 +27,13 @@ void Util::Options::registerOption(const char *option, const char *argName,
     o->processor = processor;
     o->description = description;
     o->flags = flags;
-    auto opt = get(options, cstring(option));
-    if (opt != nullptr) throw std::logic_error(std::string("Option already registered: ") + option);
-    options.emplace(option, o);
-    optionOrder.push_back(cstring(option));
+    auto [opt, isNew] = options.emplace(option, o);
+    if (isNew)
+        optionOrder.push_back(cstring(option));
+    else if (flags & OptionFlags::Replace)
+        opt->second = o;
+    else
+        throw std::logic_error(std::string("Option already registered: ") + option);
 }
 
 // Process options; return list of remaining options.

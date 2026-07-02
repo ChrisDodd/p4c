@@ -46,6 +46,9 @@ class Options {
         /// `--foo` were omitted. If the argument is omitted, null will be
         /// passed to the OptionProcessor.
         OptionalArgument = 1 << 1,
+
+        /// Replace an existing argument
+        Replace = 2 << 1,
     };
 
     // return true if processing is successful
