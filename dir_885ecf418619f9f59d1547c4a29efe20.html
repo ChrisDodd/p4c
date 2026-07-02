@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.13.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>P4 Compiler Documentation (P4C): bfas command line options</title>
+<title>P4 Compiler Documentation (P4C): specs Directory Reference</title>
 <link rel="icon" href="p4-fav.svg" type="image/x-icon" />
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -100,7 +100,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function(){initNavTree('md__2home_2runner_2work_2p4c_2p4c_2backends_2tofino_2bf-asm_2_options.html',''); initResizable(true); });
+$(function(){initNavTree('dir_885ecf418619f9f59d1547c4a29efe20.html',''); initResizable(true); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -125,94 +125,48 @@ $(function(){initNavTree('md__2home_2runner_2work_2p4c_2p4c_2backends_2tofino_2b
 </div>
 </div>
 
-<div><div class="header">
-  <div class="headertitle"><div class="title">bfas command line options</div></div>
+<div class="header">
+  <div class="headertitle"><div class="title">specs Directory Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="bfas-command-line-options"></a></p>
-<p>usage: bfas [ options ] file.bfa</p>
-<h2><a class="anchor" id="general-options"></a>
-general options</h2>
-<ul>
-<li>-h help</li>
-<li><p class="startli">&ndash;target <em>target</em></p>
-<p class="startli">specify the target (obsolete as target is generally specified in the .bfa file)</p>
-</li>
-<li><p class="startli">-Werror</p>
-<p class="startli">treat warnings as errors</p>
-</li>
-</ul>
-<h2><a class="anchor" id="options-for-controlling-output"></a>
-options for controlling output</h2>
-<ul>
-<li>-a</li>
-<li><p class="startli">&ndash;allpipes</p>
-<p class="startli">Generate a binary that has explicit writes for all pipes, rather than just one</p>
-</li>
-<li>-s</li>
-<li>&ndash;singlepipe</li>
-<li>&ndash;pipe*N*</li>
-<li>-G</li>
-<li><p class="startli">&ndash;gen_json</p>
-<p class="startli">Generate .cfg.json files instead of binary</p>
-</li>
-<li>&ndash;no-bin</li>
-<li>&ndash;num-stages-override*N*</li>
-<li><p class="startli">-M</p>
-<p class="startli">Attempt to match glass bit-for-bit</p>
-</li>
-<li><p class="startli">-o <em>directory</em></p>
-<p class="startli">Generate output in the specified directory rather than in the current working dir</p>
-</li>
-</ul>
-<h2><a class="anchor" id="options-for-controling-cfg-details"></a>
-options for controling cfg details</h2>
-<ul>
-<li>-C condense json by stripping out unset subtrees (default)</li>
-<li><p class="startli">&ndash;disable-egress-latency-padding</p>
-<p class="startli">Disable the padding of egress latency to avoid tofino1 TM overrun bus</p>
-</li>
-<li>&ndash;disable-longbranch</li>
-<li><p class="startli">&ndash;enable-longbranch</p>
-<p class="startli">Disable or enable support for long branches</p>
-</li>
-<li>&ndash;disable-tof2lab44-workaround</li>
-<li>&ndash;high_availability_disabled</li>
-<li>&ndash;multi-parsers</li>
-<li>&ndash;no-condense</li>
-<li><p class="startli">&ndash;noop-fill-instruction <em>opcode</em></p>
-<p class="startli">Insert instructions (of the form <em>opcode</em> R, R, R) for noop slots in VLIW instructions where the slot is not used by any action in the stage. <em>opcode</em> must be one that is an identity function when applied to two copies of the same value (and, or, alu_a, alu_b, mins, maxs, minu, or maxu)</p>
-</li>
-<li>-p Disable power gating</li>
-<li>&ndash;singlewrite</li>
-<li>&ndash;stage_dependency_pattern <em>pattern</em></li>
-<li>&ndash;table-handle-offset*N*</li>
-</ul>
-<h2><a class="anchor" id="options-for-loggingdebugging"></a>
-options for logging/debugging</h2>
-<ul>
-<li><p class="startli">-l <em>file</em></p>
-<p class="startli">redirect logging output to file</p>
-</li>
-<li>&ndash;log-hashes</li>
-<li><p class="startli">-q</p>
-<p class="startli">disable all logging output</p>
-</li>
-<li>&ndash;no-warn</li>
-<li><p class="startli">-T <em>debug spec</em></p>
-<p class="startli">enable logging of specific source files and specific levels</p>
-</li>
-<li><p class="startli">-v</p>
-<p class="startli">increase logging verbosity </p>
-</li>
-</ul>
-</div></div><!-- contents -->
-</div><!-- PageDoc -->
+<div class="dynheader">
+Directory dependency graph for specs:</div>
+<div class="dyncontent">
+<div class="center"><iframe scrolling="no" frameborder="0" src="dir_885ecf418619f9f59d1547c4a29efe20_dep.svg" width="112" height="104"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
+Files</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="tofino_2bf-p4c_2specs_2arch__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>arch_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="device_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>device.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="gress_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>gress.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="match__register__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>match_register_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="mau__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>mau_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="parde__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>parde_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="bf-p4c_2specs_2phv_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>phv.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="phv__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>phv_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="power__spec_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><b>power_spec.h</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+</div><!-- contents -->
 </div><!-- doc-content -->
+<!--
+SPDX-FileCopyrightText: 2017 Barefoot Networks, Inc.
+SPDX-License-Identifier: Apache-2.0
+-->
 <!-- HTML footer for doxygen 1.13.2-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
+    <li class="navelem"><a class="el" href="dir_dec21994cd756836ecefab773235960a.html">backends</a></li><li class="navelem"><a class="el" href="dir_c4ded715df726299fc9cd18b15628924.html">tofino</a></li><li class="navelem"><a class="el" href="dir_cfcd49738e4a3dfd100d5c3f88ec2338.html">bf-p4c</a></li><li class="navelem"><a class="el" href="dir_885ecf418619f9f59d1547c4a29efe20.html">specs</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.13.2 </li>
   </ul>
 </div>

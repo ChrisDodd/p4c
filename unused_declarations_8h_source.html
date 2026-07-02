@@ -322,13 +322,13 @@ $(function(){initNavTree('unused_declarations_8h_source.html',''); initResizable
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="preprocessor">#endif </span><span class="comment">/* FRONTENDS_P4_UNUSEDDECLARATIONS_H_ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclass_p4_1_1_collect_used_declarations_html"><div class="ttname"><a href="class_p4_1_1_collect_used_declarations.html">P4::CollectUsedDeclarations</a></div><div class="ttdoc">Collects all used declarations into @used set.</div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:59</div></div>
 <div class="ttc" id="aclass_p4_1_1_i_has_db_print_html"><div class="ttname"><a href="class_p4_1_1_i_has_db_print.html">P4::IHasDbPrint</a></div><div class="ttdef"><b>Definition</b> stringify.h:33</div></div>
-<div class="ttc" id="aclass_p4_1_1_i_r_1_1_i_declaration_html"><div class="ttname"><a href="class_p4_1_1_i_r_1_1_i_declaration.html">P4::IR::IDeclaration</a></div><div class="ttdoc">The Declaration interface, representing objects with names.</div><div class="ttdef"><b>Definition</b> declaration.h:26</div></div>
-<div class="ttc" id="aclass_p4_1_1_i_r_1_1_node_html"><div class="ttname"><a href="class_p4_1_1_i_r_1_1_node.html">P4::IR::Node</a></div><div class="ttdef"><b>Definition</b> node.h:94</div></div>
-<div class="ttc" id="aclass_p4_1_1_inspector_html"><div class="ttname"><a href="class_p4_1_1_inspector.html">P4::Inspector</a></div><div class="ttdef"><b>Definition</b> visitor.h:413</div></div>
-<div class="ttc" id="aclass_p4_1_1_pass_repeated_html"><div class="ttname"><a href="class_p4_1_1_pass_repeated.html">P4::PassRepeated</a></div><div class="ttdef"><b>Definition</b> ir/pass_manager.h:145</div></div>
+<div class="ttc" id="aclass_p4_1_1_i_r_1_1_i_declaration_html"><div class="ttname"><a href="class_p4_1_1_i_r_1_1_i_declaration.html">P4::IR::IDeclaration</a></div><div class="ttdoc">The Declaration interface, representing objects with names.</div><div class="ttdef"><b>Definition</b> declaration.h:17</div></div>
+<div class="ttc" id="aclass_p4_1_1_i_r_1_1_node_html"><div class="ttname"><a href="class_p4_1_1_i_r_1_1_node.html">P4::IR::Node</a></div><div class="ttdef"><b>Definition</b> node.h:53</div></div>
+<div class="ttc" id="aclass_p4_1_1_inspector_html"><div class="ttname"><a href="class_p4_1_1_inspector.html">P4::Inspector</a></div><div class="ttdef"><b>Definition</b> visitor.h:418</div></div>
+<div class="ttc" id="aclass_p4_1_1_pass_repeated_html"><div class="ttname"><a href="class_p4_1_1_pass_repeated.html">P4::PassRepeated</a></div><div class="ttdef"><b>Definition</b> ir/pass_manager.h:146</div></div>
 <div class="ttc" id="aclass_p4_1_1_remove_unused_policy_html"><div class="ttname"><a href="class_p4_1_1_remove_unused_policy.html">P4::RemoveUnusedPolicy</a></div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:48</div></div>
 <div class="ttc" id="aclass_p4_1_1_remove_unused_policy_html_a310d1b61027d39a058bba48e8e0c1cc4"><div class="ttname"><a href="class_p4_1_1_remove_unused_policy.html#a310d1b61027d39a058bba48e8e0c1cc4">P4::RemoveUnusedPolicy::getUnusedDeclarationsPass</a></div><div class="ttdeci">virtual UnusedDeclarations * getUnusedDeclarationsPass(const UsedDeclSet &amp;used, bool removeUnused, bool warnUnused, bool infoRemoved) const</div><div class="ttdef"><b>Definition</b> unusedDeclarations.cpp:24</div></div>
-<div class="ttc" id="aclass_p4_1_1_transform_html"><div class="ttname"><a href="class_p4_1_1_transform.html">P4::Transform</a></div><div class="ttdef"><b>Definition</b> visitor.h:437</div></div>
+<div class="ttc" id="aclass_p4_1_1_transform_html"><div class="ttname"><a href="class_p4_1_1_transform.html">P4::Transform</a></div><div class="ttdef"><b>Definition</b> visitor.h:442</div></div>
 <div class="ttc" id="aclass_p4_1_1_unused_declarations_html"><div class="ttname"><a href="class_p4_1_1_unused_declarations.html">P4::UnusedDeclarations</a></div><div class="ttdoc">Removes unused declarations.</div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:99</div></div>
 <div class="ttc" id="aclass_p4_1_1_unused_declarations_html_a26bf9f7a7d2773b2d2f60f11c787f444"><div class="ttname"><a href="class_p4_1_1_unused_declarations.html#a26bf9f7a7d2773b2d2f60f11c787f444">P4::UnusedDeclarations::warnUnused</a></div><div class="ttdeci">bool warnUnused</div><div class="ttdoc">If true, emits warnings about unused instances.</div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:107</div></div>
 <div class="ttc" id="aclass_p4_1_1_unused_declarations_html_a63c13b38b67f6a49094db55c8181a915"><div class="ttname"><a href="class_p4_1_1_unused_declarations.html#a63c13b38b67f6a49094db55c8181a915">P4::UnusedDeclarations::infoRemoved</a></div><div class="ttdeci">bool infoRemoved</div><div class="ttdoc">If true, emits info messages about removed instances.</div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:110</div></div>
@@ -338,9 +338,13 @@ $(function(){initNavTree('unused_declarations_8h_source.html',''); initResizable
 <div class="ttc" id="aclass_p4_1_1_used_decl_set_html"><div class="ttname"><a href="class_p4_1_1_used_decl_set.html">P4::UsedDeclSet</a></div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:29</div></div>
 <div class="ttc" id="aclass_p4_1_1_used_decl_set_html_a3d53da6b2854776165f14dcac48d1901"><div class="ttname"><a href="class_p4_1_1_used_decl_set.html#a3d53da6b2854776165f14dcac48d1901">P4::UsedDeclSet::isUsed</a></div><div class="ttdeci">bool isUsed(const IR::IDeclaration *decl) const</div><div class="ttdef"><b>Definition</b> unusedDeclarations.h:45</div></div>
 <div class="ttc" id="aclass_p4_1_1_visitor_1_1profile__t_html"><div class="ttname"><a href="class_p4_1_1_visitor_1_1profile__t.html">P4::Visitor::profile_t</a></div><div class="ttdef"><b>Definition</b> visitor.h:78</div></div>
-<div class="ttc" id="anamespace_p4_html"><div class="ttname"><a href="namespace_p4.html">P4</a></div><div class="ttdoc">TODO: this is not really specific to BMV2, it should reside somewhere else.</div><div class="ttdef"><b>Definition</b> applyOptionsPragmas.cpp:24</div></div>
+<div class="ttc" id="anamespace_p4_html"><div class="ttname"><a href="namespace_p4.html">P4</a></div><div class="ttdoc">TODO: this is not really specific to BMV2, it should reside somewhere else.</div><div class="ttdef"><b>Definition</b> applyOptionsPragmas.cpp:13</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
+<!--
+SPDX-FileCopyrightText: 2017 Barefoot Networks, Inc.
+SPDX-License-Identifier: Apache-2.0
+-->
 <!-- HTML footer for doxygen 1.13.2-->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
